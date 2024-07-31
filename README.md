@@ -48,3 +48,7 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## For testing SDK
+
+For the application test, you can see the already entered data inside. It is only necessary to change the xRequestId to get successful data
