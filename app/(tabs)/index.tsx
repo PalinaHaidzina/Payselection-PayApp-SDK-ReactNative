@@ -1,52 +1,234 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { enc, HmacSHA256 } from "crypto-js";
+import { Formik } from "formik";
+import paymentApi from "payselection-pay-app-sdk-reactnative/src/api/payment";
+import getStatusApi from "payselection-pay-app-sdk-reactnative/src/api/status";
+import {
+  CryptogramRSAPayment,
+  PublicPayHeader,
+} from "payselection-pay-app-sdk-reactnative/src/types/payment/paymentPayload";
+import { PayResponse } from "payselection-pay-app-sdk-reactnative/src/types/payment/paymentResponse";
+import { getCryptogramValue } from "payselection-pay-app-sdk-reactnative/src/types/payment/utils";
+import {
+  GetStatusByOrderIdHeader,
+  GetStatusByTransactionIdHeader,
+} from "payselection-pay-app-sdk-reactnative/src/types/status/statusPayload";
+import {
+  MultiStateTransactionInfo,
+  TransactionStateDeclined, TransactionStateRedirect, TransactionStateWaitFor3ds,
+} from "payselection-pay-app-sdk-reactnative/src/types/status/statusResponse";
+import { SignatureProps } from "payselection-pay-app-sdk-reactnative/src/utils/common";
+import React, { useState } from "react";
+import { StyleSheet, View, TextInput, Pressable, Text } from "react-native";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
+const payHeader: PublicPayHeader = {
+  X_SITE_ID: '21044',
+  X_REQUEST_ID: '4f6b71f1-ddfd-489b-b855-480ebb255612x',
+}
+
+const MockSignatureTransaction: SignatureProps = {
+  requestMethod: 'GET',
+  url: '',
+  xSiteId: '21044',
+  xRequestId: '4f6b71f1-ddfd-489b-b855-480ebb2556393n',
+  siteSecretKey: '',
+}
+
+const transactionIdStatusHeader: GetStatusByTransactionIdHeader = {
+  X_SITE_ID: '21044',
+  X_REQUEST_ID: '4f6b71f1-ddfd-489b-b855-480ebb2556393n',
+  X_REQUEST_SIGNATURE: "",
+}
+
+const MockSignatureOrderId: SignatureProps = {
+  requestMethod: 'GET',
+  url: '/orders/',
+  xSiteId: '21044',
+  xRequestId: '4f6b71f1-ddfd-489b-b855-480ebb2556pl91q3',
+  siteSecretKey: 'jdPnu3LKGnBqShN3',
+}
+
+const orderIdStatusHeader: GetStatusByOrderIdHeader = {
+  X_SITE_ID: '21044',
+  X_REQUEST_ID: '4f6b71f1-ddfd-489b-b855-480ebb2556pl91q3',
+  X_REQUEST_SIGNATURE: "",
+}
+
+const extractPathFromUrl = ( url: string ): string => {
+  const parts = url.split( '/' );
+  parts.splice( 0, 3 );
+  return '/' + parts.join( '/' );
+};
+
+const signatureGeneration = ( {
+  requestMethod,
+  url,
+  xRequestId,
+  xSiteId,
+  requestBody,
+  siteSecretKey,
+}: SignatureProps ) => {
+  
+  if (requestMethod === 'GET') {
+    url = extractPathFromUrl( url );
+    requestBody = '';
+  }
+  
+  const signature_string = `${requestMethod}\n${url}\n${xSiteId}\n${xRequestId}\n${requestBody}`;
+  return HmacSHA256( signature_string, siteSecretKey ).toString( enc.Hex );
+}
+
+
+const MockCryptogramPaymentData: CryptogramRSAPayment = {
+  OrderId: "SAM_SDK_3",
+  Amount: "11.00",
+  Currency: "RUB",
+  Description: "test payment",
+  RebillFlag: false,
+  CustomerInfo: {
+    Email: "user@example.com",
+    Phone: "+19991231212",
+    Language: "en",
+    Address: "string",
+    Town: "string",
+    ZIP: "1234567",
+    Country: "USA",
+    IP: "10.0.2.56"
+  },
+  PaymentDetails: {
+    Value: "",
+  },
+  PaymentMethod: "CryptogramRSA",
+}
+
+const cryptogramValueData = {
+  TransactionDetails: {
+    Amount: "11.00",
+    Currency: "RUB",
+  },
+  PaymentDetails: {
+    CardholderName: "Card Holder",
+    CardNumber: "4111111111111111",
+    CVC: "603",
+    ExpMonth: "04",
+    ExpYear: "44"
+  },
+  PaymentMethod: "CryptogramRSA",
+  MessageExpiration: Date.now() + 86400000,
+}
+
+const inputsFieldsList = [
+  { label: "OrderId", value: MockCryptogramPaymentData.OrderId, key: "order-id-filed" },
+  { label: "Amount", value: MockCryptogramPaymentData.Amount, key: "amount-filed" },
+  { label: "Currency", value: MockCryptogramPaymentData.Currency, key: "currency-filed" },
+  { label: "Description", value: MockCryptogramPaymentData.Description, key: "description-filed" },
+  { label: "RebillFlag", value: MockCryptogramPaymentData.RebillFlag, key: "rebill-flag-filed" },
+  { label: "Email", value: MockCryptogramPaymentData.CustomerInfo.Email, key: "email-filed" },
+  { label: "Phone", value: MockCryptogramPaymentData.CustomerInfo.Phone, key: "phone-filed" },
+  { label: "Language", value: MockCryptogramPaymentData.CustomerInfo.Language, key: "language-filed" },
+  { label: "Address", value: MockCryptogramPaymentData.CustomerInfo.Address, key: "address-filed" },
+  { label: "Town", value: MockCryptogramPaymentData.CustomerInfo.Town, key: "town-filed" },
+  { label: "ZIP", value: MockCryptogramPaymentData.CustomerInfo.ZIP, key: "zip-filed" },
+  { label: "Country", value: MockCryptogramPaymentData.CustomerInfo.Country, key: "country-filed" },
+  { label: "IP", value: MockCryptogramPaymentData.CustomerInfo.IP, key: "ip-filed" },
+  { label: "Value", value: MockCryptogramPaymentData.PaymentDetails.Value, key: "value-filed" },
+  { label: "PaymentMethod", value: MockCryptogramPaymentData.PaymentMethod, key: "payment-method-filed" },
+
+]
+
 export default function HomeScreen() {
+  const [publicPayResult, setPublicPayResult] = useState<PayResponse>({});
+  const [transactionIdStatus, setTransactionIdStatus] =
+      useState<MultiStateTransactionInfo
+              | TransactionStateDeclined
+              | TransactionStateWaitFor3ds
+              | TransactionStateRedirect>({});
+  const [orderIdStatus, setOrderIdStatus] = useState<MultiStateTransactionInfo
+      | TransactionStateDeclined
+      | TransactionStateWaitFor3ds
+      | TransactionStateRedirect>({});
+  
+  
+  const createPayment = async (values: CryptogramRSAPayment ) => {
+    
+    const publicKey="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQ0lqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FnOEFNSUlDQ2dLQ0FnRUFxbk56eXlwR1R6cENZeDlzMnh6RQpaQ3B4eVkyL2YrbWljb0drWW1rV0M5Szl2SlIvcEtUL0VOUThCT1hIRkFBYW5Mb05PNzVLcmJUQ3Z5Y2pXbkJGCnhYQlJZY2NWeGsxaVB0c0VKbkNlcThmYXMwa2dYMFgzLzFnTFdvbkhheVdTUUl5emFTMXMrWUdsNEJyd2s5c08KTTQyZlk0dkM1WGptU1YxUDNlN2pvNUN1d2hxL2ljUkxZbTg1MXBYRTRiZ3FZYS96NEsrbXhUcWJvdC94b3lhTQpxSmlIOS9EUnQveTc0Z2t6Q0VIRThGQ0M4TkJlVXZUckRWbnlSQ0dtSlpVTDh0QnhPd1N3Ty94M1lzZi9CNU9vCkVjbllWdjVSQmF1MDl4VmFGTFN5QkZiRUsvZnRDUktFeUNQbnpYS2FnbTQ3T2dROEIvTkdhQ0cxRmdVOUhJb2gKd093TmsycWY1NTRPR21Oa0E3MnZCR1E0RTZ4TldUSnFJQWhOTUJQTjFMZGdRNXZTamszTUVJRHQ3Y3FEZzhFRwpCNU0vVS9VT2lVU2tXWmFtR3pXOVZFbkJhRFdWZFpxVVpTc0d0aCtJM093NGRPUUxiZG4rdzljYlpHLzR2VmwvCmFKdTdlQlZ2WVhEL0o0TnIzMk5RZ1o2YzlpMCtNU3RwWFUxMlJ4bzhJK1hCNVpZUTkzNE5iVXJoeDBuMlJhQk0KbGtlSTFtbE1ncWI3ME9BRk5zaDUyNUFIL3k5OVpJTzhsR0RqVEpSdDlKZzdGNVFmUEVWekRIbXdxdy9FaFFjQwpjVG5QaGRLOE53NDJ3QldIVDhXYXg4Y1NxYTdwRytTM2JOYkZvUVJlU1dvK2pzV0JNOU1NemJvckNqYWE1UzRNCnNCV0UyN2FRSElVMU5sTGNqK0laUldzQ0F3RUFBUT09Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=";
+    
+    const cryptogram = getCryptogramValue(cryptogramValueData, publicKey);
+    values.PaymentDetails.Value = cryptogram;
+    
+    const result = await paymentApi.publicPay(values, payHeader);
+    setPublicPayResult(result);
+    
+  }
+  
+  const getOrderIdStatus = async () => {
+    MockSignatureOrderId.url = `https://gw.payselection.com/orders/${publicPayResult.OrderId}`;
+    const signature = signatureGeneration(MockSignatureOrderId);
+    orderIdStatusHeader.X_REQUEST_SIGNATURE = signature;
+    
+    const result =
+        await getStatusApi.getStatusByOrderId(publicPayResult.OrderId, orderIdStatusHeader);
+    setOrderIdStatus(result);
+  }
+  
+  const getTransactionIdStatus = async () => {
+    if (publicPayResult.TransactionId) {
+      MockSignatureTransaction.url = `https://gw.payselection.com/transactions/${publicPayResult.TransactionId}`;
+      MockSignatureTransaction.siteSecretKey = publicPayResult.TransactionSecretKey;
+      const signature = signatureGeneration(MockSignatureTransaction);
+      transactionIdStatusHeader.X_REQUEST_SIGNATURE = signature;
+      
+      const result =
+          await getStatusApi.getStatusByTransactionId( publicPayResult.TransactionId, transactionIdStatusHeader);
+      setTransactionIdStatus(result);
+    }
+  }
+  
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
+        <Formik
+            initialValues={MockCryptogramPaymentData}
+            onSubmit={values => createPayment(values)}
+        >
+          {({ handleChange, handleBlur, handleSubmit, values }) => (
+              <View style={styles.inputsContainer}>
+                {inputsFieldsList.map(({ label, key, value }) => (
+                    <View key={key} style={styles.row}>
+                      <Text>{label}</Text>
+                      <TextInput
+                          style={styles.inputFiled}
+                          onChangeText={handleChange(label.toLowerCase())}
+                          onBlur={handleBlur(label.toLowerCase())}
+                          // @ts-ignore
+                          value={value}
+                          placeholder={label}
+                      />
+                    </View>
+                ))}
+                <Pressable style={styles.button} onPress={() => handleSubmit()}>
+                  <Text style={styles.text}>Create public pay</Text>
+                </Pressable>
+              </View>
+          )}
+        </Formik>
+        <Pressable style={styles.button} onPress={() => getTransactionIdStatus()}>
+          <Text style={styles.text}>Get transaction status</Text>
+        </Pressable>
+        <Text>
+          {transactionIdStatus.TransactionState}{"\n"}
+          {transactionIdStatus.TransactionId}{"\n"}
+          {transactionIdStatus.OrderId}{"\n"}
+        </Text>
+        <Pressable style={styles.button} onPress={() => getOrderIdStatus()}>
+          <Text style={styles.text}>Get order status</Text>
+        </Pressable>
+        <Text>
+          {orderIdStatus.TransactionState}{"\n"}
+          {orderIdStatus.TransactionId}{"\n"}
+          {orderIdStatus.OrderId}{"\n"}
+        </Text>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
   );
 }
 
@@ -67,4 +249,41 @@ const styles = StyleSheet.create({
     left: 0,
     position: 'absolute',
   },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    elevation: 3,
+    backgroundColor: 'black',
+  },
+  text: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: 'white',
+  },
+  inputsContainer: {
+    gap: 8,
+    marginTop: 10,
+    marginHorizontal: 24,
+    backgroundColor: "none",
+  },
+  inputFiled: {
+    borderColor: "black",
+    borderStyle: "solid",
+    height: 30,
+    borderWidth: 2,
+    marginHorizontal: 2,
+    paddingHorizontal: 10,
+    width: "100%",
+    paddingVertical: 10,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  }
 });
