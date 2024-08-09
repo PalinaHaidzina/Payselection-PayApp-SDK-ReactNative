@@ -203,7 +203,6 @@ export default function HomeScreen() {
                           onChangeText={handleChange(label.toLowerCase())}
                           onBlur={handleBlur(label.toLowerCase())}
                           // @ts-ignore
-                          value={value}
                           placeholder={label}
                       />
                     </View>
