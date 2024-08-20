@@ -28,7 +28,7 @@
     "expo-system-ui": "~3.0.7",
     "expo-web-browser": "~13.0.3",
     "formik": "^2.4.6",
-    "payselection-pay-app-sdk-reactnative": "file:payselection-pay-app-sdk-reactnative-0.0.3.tgz",
+    "payselection-pay-app-sdk-reactnative": "file:payselection-pay-app-sdk-reactnative-1.0.2.tgz",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.3",

@@ -103,7 +103,8 @@ const MockCryptogramPaymentDataFFD1_05: CryptogramRSAPayment = {
     Town: "string",
     ZIP: "1234567",
     Country: "USA",
-    IP: "10.0.2.56"
+    IP: "10.0.2.56",
+    UserId: "string"
   },
   ExtraData: {
     ReturnUrl: "https://api.payselection.com/",
@@ -232,7 +233,8 @@ const MockCryptogramPaymentDataFFD1_2: CryptogramRSAPayment = {
     Town: "string",
     ZIP: "1234567",
     Country: "USA",
-    IP: "10.0.2.56"
+    IP: "10.0.2.56",
+    UserId: "string"
   },
   ExtraData: {
     ReturnUrl: "https://api.payselection.com/",
