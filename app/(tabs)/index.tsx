@@ -28,7 +28,7 @@ import {
   TransactionStateWaitFor3ds,
 } from "payselection-pay-app-sdk-reactnative/src/types/status/statusResponse";
 import { SignatureProps } from "payselection-pay-app-sdk-reactnative/src/utils/common";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Animated, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import ScrollView = Animated.ScrollView;
 
@@ -265,7 +265,7 @@ const MockCryptogramPaymentDataFFD1_2: CryptogramRSAPayment = {
         email: "string",
         sno: TaxSystem.osn,
         inn: "string",
-        payment_address: "string",
+        paymentAddress: "string",
       },
       items: [
         {
@@ -427,6 +427,7 @@ export default function HomeScreen() {
       | TransactionStateRedirect>({});
   const [selectedButton, setSelectedButton] = useState<string>('1.05');
   
+  let initialState = MockCryptogramPaymentDataFFD1_05;
   const handlePress = (value: string) => {
     setSelectedButton(value);
   };
@@ -465,13 +466,19 @@ export default function HomeScreen() {
     }
   }
   
+  useEffect(() => {
+    initialState = MockCryptogramPaymentDataFFD1_2
+    
+    console.log(selectedButton === "1.05" ? MockCryptogramPaymentDataFFD1_05.ReceiptData?.receipt.items : MockCryptogramPaymentDataFFD1_2.ReceiptData?.receipt.items)
+  }, [selectedButton]);
+  
 
   return (
       <ScrollView style={styles.stepContainer}>
         
         <Formik
             key={selectedButton}
-            initialValues={selectedButton === "1.05" ? MockCryptogramPaymentDataFFD1_05 : MockCryptogramPaymentDataFFD1_2}
+            initialValues={initialState}
             onSubmit={values => createPayment(values)}
         >
           {({ handleChange, handleBlur, handleSubmit, values }) => (
