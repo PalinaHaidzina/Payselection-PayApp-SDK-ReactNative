@@ -6,6 +6,7 @@ import {
   AgentInfoType,
   PaymentMethodType,
   PaymentObjectFFD1_05,
+  PaymentObjectFFD1_2,
   PaymentsType,
   TaxSystem,
   VatType,
@@ -274,7 +275,7 @@ const MockCryptogramPaymentDataFFD1_2: CryptogramRSAPayment = {
           sum: 42949672.95,
           measure: 0,
           payment_method: PaymentMethodType.full_payment,
-          payment_object: PaymentObjectFFD1_05.commodity,
+          payment_object: PaymentObjectFFD1_2.pawn,
           vat: {
             type: VatType.vat10,
             sum: 99999999.99,
