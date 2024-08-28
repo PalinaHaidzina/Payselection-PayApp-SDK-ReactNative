@@ -16,7 +16,7 @@ import {
 import {
   CryptogramPayment,
   CryptogramRSAPayment,
-  PublicPayHeader,
+  PublicPayHeader, SberPayPayment,
 } from "payselection-pay-app-sdk-reactnative/src/types/payment/paymentPayload";
 import { PayResponse } from "payselection-pay-app-sdk-reactnative/src/types/payment/paymentResponse";
 import {
@@ -36,7 +36,7 @@ import ScrollView = Animated.ScrollView;
 
 const payHeader: PublicPayHeader = {
   X_SITE_ID: '21044',
-  X_REQUEST_ID: '4f6b71f1-ddfd-489b-b855-Testq2',
+  X_REQUEST_ID: '4f6b71f1-ddfd-489b-b855-Testq4',
 }
 
 const MockSignatureTransaction: SignatureProps = {
