@@ -190,9 +190,11 @@ export default function HomeScreen() {
   }
   
   useEffect(() => {
-    initialState = MockCryptogramPaymentDataFFD1_2
-    
-    console.log(selectedButton === "1.05" ? MockCryptogramPaymentDataFFD1_05.ReceiptData?.receipt.items : MockCryptogramPaymentDataFFD1_2.ReceiptData?.receipt.items)
+    if (selectedButton === "1.05") {
+      initialState = MockCryptogramPaymentDataFFD1_05;
+    } else {
+      initialState = MockCryptogramPaymentDataFFD1_2
+    }
   }, [selectedButton]);
   
 
