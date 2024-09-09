@@ -1,5 +1,5 @@
 import {
-  cryptogramECDHValueData,
+  cryptogramECDHValueData, cryptogramRSAValueData,
   MockCryptogramPaymentDataFFD1_05, MockCryptogramPaymentDataFFD1_2,
   MockPayResponse,
   MockTransactionStateWaitFor3ds,
@@ -147,21 +147,20 @@ export default function HomeScreen() {
     const publicKey="04bd07d3547bd1f90ddbd985feaaec59420cabd082ff5215f34fd1c89c5d8562e8f5e97a5df87d7c99bc6f16a946319f61f9eb3ef7cf355d62469edb96c8bea09e\n";
     
     //for CryptogramRSA
-    
+    const cryptogram = getCryptogramRSAValue(cryptogramRSAValueData, publicRSAKey);
     //const cryptogram = getCryptogramRSAValue(cryptogramRSAValueData, publicRSAKey);
-    //values.PaymentDetails.Value = cryptogram;*/
+    //initialState.PaymentDetails.Value = cryptogram;*/
     
     
     //for Cryptogram
     try {
       const cryptogram = getCryptogramECDHValue(cryptogramECDHValueData, publicKey);
-      values.PaymentDetails.Value = await cryptogram;
+      initialState.PaymentDetails.Value = await cryptogram;
     } catch (error) {
       console.error('Encryption failed:', error);
     }
     
-    
-    const result = await paymentApi.publicPay(values, payHeader);
+    const result = await paymentApi.publicPay(initialState, payHeader);
     setPublicPayResult(result);
     
   }
@@ -197,7 +196,6 @@ export default function HomeScreen() {
     }
   }, [selectedButton]);
   
-
   return (
       <ScrollView style={styles.stepContainer}>
         

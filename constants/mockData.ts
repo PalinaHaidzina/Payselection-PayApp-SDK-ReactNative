@@ -445,7 +445,7 @@ export const MockTransactionStatus: TransactionStateDeclined = {
     }
 }
 
-const cryptogramRSAValueData = {
+export const cryptogramRSAValueData = {
     TransactionDetails: {
         Amount: "11.00",
         Currency: "RUB",
