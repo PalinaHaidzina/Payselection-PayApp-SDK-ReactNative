@@ -10,15 +10,21 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors.tint,
         headerShown: false,
       }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-        }}
-      />
+        <Tabs.Screen
+            name="index"
+            options={{
+                title: 'FFD1_05',
+            }}
+        />
+        <Tabs.Screen
+            name="ffd1_2"
+            options={{
+                title: 'FFD1_2',
+            }}
+        />
     </Tabs>
   );
 }
