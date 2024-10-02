@@ -19,7 +19,8 @@ export type FieldsType = {
 }
 
 export enum FormFieldType {
-    subTitle = "SubTitle",
-    input = "Input",
-    picker = "Picker",
+    input = "input",
+    picker = "picker",
+    array = "array",
+    object = "object",
 }

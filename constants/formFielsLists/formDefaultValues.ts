@@ -5,11 +5,8 @@ import {
 } from "payselection-pay-app-sdk-reactnative/src/types/commonTypes";
 import { CryptogramPayment } from "payselection-pay-app-sdk-reactnative/src/types/payment/paymentPayload";
 
-export const defaultPaymentPayloadValues: CryptogramPayment = {
-    PaymentMethod: "Cryptogram",
-    PaymentDetails: {
-        Value: "",
-    },
+export const defaultPaymentPayloadValues = {
+    PaymentMethod: "",
     OrderId: "",
     Amount: "",
     Currency: "",
