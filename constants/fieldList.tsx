@@ -1,797 +1,1404 @@
-import { FormFieldType } from "@/constants/formFielsLists/commonTypes";
 import {
     AgentInfoTypeHandbook,
     booleanHandbook,
-    PaymentMethodTypeHandbook, PaymentObjectFFD1_05, PaymentsTypeHandbook,
-    SnoHandbook, VatTypeHandbook,
+    PaymentMethodTypeHandbook, PaymentObjectFFD1_05, PaymentObjectFFD1_2, PaymentObjectFFD1_2Handbook,
+    SnoHandbook, VatTypeHandbook
 } from "@/constants/formFielsLists/handbook";
 
-export const paymentInfoList = [
+export interface Field {
+    name: string;
+    key: string;
+    placeholder?: string;
+    fieldType: string;  // "text", "number", "group", "array", "select" и т.д.
+    subfields?: Field[]; // Для вложенных полей
+    options?: { label: string; value: string | number | boolean }[]; // Опции для picker полей
+}
+
+export const fieldsFFD1_05: Field[] = [
     {
-        type: FormFieldType.input,
+        fieldType: "text",
         name: "PaymentMethod",
-        placeholder: "PaymentMethod",
-        key: "payment-method",
+        placeholder: "Enter Payment Method",
+        key: "PaymentMethod",
     },
     {
-        type: FormFieldType.input,
-        name: "PaymentDetails.Value",
-        placeholder: "Value",
-        key: "payment-details",
+        fieldType: "group",
+        name: "PaymentDetails",
+        key: "PaymentDetails",
+        subfields: [
+            {
+                fieldType: "text",
+                name: "Value",
+                placeholder: "Value",
+                key: "PaymentDetails.Value",
+            },
+            {
+                fieldType: "text",
+                name: "Type",
+                placeholder: "Type",
+                key: "PaymentDetails.Type",
+            },
+            {
+                fieldType: "text",
+                name: "PayToken",
+                placeholder: "PayToken",
+                key: "PaymentDetails.PayToken",
+            },
+        ]
     },
     {
-        type: FormFieldType.input,
-        name: "OrderId",
-        placeholder: "Order Id",
-        key: "order-id",
+        name: "Order ID",
+        key: "OrderId",
+        placeholder: "Enter Order ID",
+        fieldType: "text",
     },
     {
-        type: FormFieldType.input,
         name: "Amount",
-        placeholder: "Amount",
-        key: "amount",
+        key: "Amount",
+        placeholder: "Enter Amount",
+        fieldType: "text",
     },
     {
-        type: FormFieldType.input,
         name: "Currency",
-        placeholder: "Currency",
-        key: "currency",
+        key: "Currency",
+        placeholder: "Enter Currency",
+        fieldType: "text",
     },
     {
-        type: FormFieldType.input,
         name: "Description",
-        placeholder: "Description",
-        key: "description",
+        key: "Description",
+        placeholder: "Enter Description",
+        fieldType: "text",
     },
     {
-        type: FormFieldType.picker,
         name: "RebillFlag",
-        placeholder: "Rebill Flag",
-        key: "rebill-flag",
+        key: "RebillFlag",
+        placeholder: "Enter RebillFlag",
+        fieldType: "picker",
         options: booleanHandbook,
     },
-
     {
-        type: FormFieldType.object,
-        name: "CustomerInfo",
-        placeholder: "Customer Info",
-        key: "customer-info",
+        name: "Customer Info",
+        key: "CustomerInfo",
+        fieldType: "group",
         subfields: [
             {
-                type: FormFieldType.input,
-                name: "CustomerInfo.Email",
-                placeholder: "Email",
-                key: "customer-info-email",
+                name: "Email",
+                key: "CustomerInfo.Email",
+                placeholder: "Enter Email",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "CustomerInfo.ReceiptEmail",
-                placeholder: "ReceiptEmail",
-                key: "customer-info-receipt-email",
+                name: "ReceiptEmail",
+                key: "CustomerInfo.ReceiptEmail",
+                placeholder: "Enter Receipt Email",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "CustomerInfo.IsSendReceipt",
-                placeholder: "IsSendReceipt",
-                key: "customer-info-is-send-receipt",
+                name: "IsSendReceipt",
+                key: "CustomerInfo.IsSendReceipt",
+                placeholder: "Enter Is Send Receipt",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "CustomerInfo.Phone",
-                placeholder: "Phone",
-                key: "customer-info-phone",
+                name: "Phone",
+                key: "CustomerInfo.Phone",
+                placeholder: "Enter Phone",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "CustomerInfo.Language",
-                placeholder: "Language",
-                key: "customer-info-language",
+                name: "Language",
+                key: "CustomerInfo.Language",
+                placeholder: "Enter Language",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "CustomerInfo.Address",
-                placeholder: "Address",
-                key: "customer-info-address",
+                name: "Address",
+                key: "CustomerInfo.Address",
+                placeholder: "Enter Address",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "CustomerInfo.Town",
-                placeholder: "Town",
-                key: "customer-info-town",
+                name: "Town",
+                key: "CustomerInfo.Town",
+                placeholder: "Enter Town",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "CustomerInfo.ZIP",
-                placeholder: "ZIP",
-                key: "customer-info-zip",
+                name: "ZIP",
+                key: "CustomerInfo.ZIP",
+                placeholder: "Enter ZIP",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "CustomerInfo.Country",
-                placeholder: "Country",
-                key: "customer-info-county",
+                name: "Country",
+                key: "CustomerInfo.Country",
+                placeholder: "Enter Country",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "CustomerInfo.IP",
-                placeholder: "IP",
-                key: "customer-info-ip",
+                name: "IP",
+                key: "CustomerInfo.IP",
+                placeholder: "Enter IP",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "CustomerInfo.UserId",
-                placeholder: "UserId",
-                key: "customer-info-user-id",
+                name: "UserId",
+                key: "CustomerInfo.UserId",
+                placeholder: "Enter User Id",
+                fieldType: "text",
             },
-        ]
+        ],
     },
-
     {
-        type: FormFieldType.object,
         name: "ExtraData",
-        placeholder: "Extra Data",
-        key: "extra-data",
+        key: "ExtraData",
+        fieldType: "group",
         subfields: [
             {
-                type: FormFieldType.input,
-                name: "ExtraData.ReturnUrl",
-                placeholder: "Return url",
-                key: "extra-data-return-url",
+                name: "ReturnUrl",
+                key: "ExtraData.ReturnUrl",
+                placeholder: "Enter Return Url",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "ExtraData.WebhookUrl",
-                placeholder: "Webhook url",
-                key: "extra-data-webhook",
+                name: "ReturnUrl",
+                key: "ExtraData.WebhookUrl",
+                placeholder: "Enter Webhook Url",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "ExtraData.ScreenHeight",
-                placeholder: "Screen height",
-                key: "extra-data-screen-height",
+                name: "ScreenHeight",
+                key: "ExtraData.ScreenHeight",
+                placeholder: "Enter Screen Height",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "ExtraData.ScreenWidth",
-                placeholder: "Screen width",
-                key: "extra-data-screen-width",
+                name: "ScreenWidth",
+                key: "ExtraData.ScreenWidth",
+                placeholder: "Enter Screen Width",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "ExtraData.ChallengeWindowSize",
-                placeholder: "Challenge window size",
-                key: "extra-data-challenge-window-size",
+                name: "ChallengeWindowSize",
+                key: "ExtraData.ChallengeWindowSize",
+                placeholder: "Enter Screen Challenge Window Size",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "ExtraData.TimeZoneOffset",
-                placeholder: "Timezone offset",
-                key: "extra-data-time-zone-offset",
+                name: "TimeZoneOffset",
+                key: "ExtraData.TimeZoneOffset",
+                placeholder: "Enter Time Zone Offset",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "ExtraData.ColorDepth",
-                placeholder: "Color depth",
-                key: "extra-data-color-depth",
+                name: "ColorDepth",
+                key: "ExtraData.ColorDepth",
+                placeholder: "Enter Color Depth",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "ExtraData.Region",
-                placeholder: "Region",
-                key: "extra-data-region",
+                name: "Region",
+                key: "ExtraData.Region",
+                placeholder: "Enter Region",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "ExtraData.UserAgent",
-                placeholder: "User agent",
-                key: "extra-data-user-agent",
+                name: "UserAgent",
+                key: "ExtraData.UserAgent",
+                placeholder: "Enter User Agent",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "ExtraData.acceptHeader",
-                placeholder: "Accept header",
-                key: "extra-data-accept-header",
+                name: "acceptHeader",
+                key: "ExtraData.acceptHeader",
+                placeholder: "Enter accept Header",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.picker,
-                name: "ExtraData.JavaEnabled",
-                placeholder: "Java enabled",
-                key: "extra-data-Java-enabled",
-                options: booleanHandbook
+                name: "JavaEnabled",
+                key: "ExtraData.JavaEnabled",
+                placeholder: "Enter Java Enabled",
+                fieldType: "picker",
+                options: booleanHandbook,
             },
             {
-                type: FormFieldType.picker,
-                name: "ExtraData.javaScriptEnabled",
-                placeholder: "JavaScript enabled",
-                key: "extra-data-java-script-enabled",
-                options: booleanHandbook
+                name: "javaScriptEnabled",
+                key: "ExtraData.javaScriptEnabled",
+                placeholder: "Enter java Script Enabled",
+                fieldType: "picker",
+                options: booleanHandbook,
             },
-        ]
+        ],
     },
-
     {
-        type: FormFieldType.object,
         name: "ReceiptData",
-        placeholder: "Receipt Data",
-        key: "receipt-data",
+        key: "ReceiptData",
+        fieldType: "group",
         subfields: [
             {
-                type: FormFieldType.input,
-                name: "ReceiptData.timestamp",
-                placeholder: "Timestamp",
-                key: "receipt-data-timestamp",
+                name: "timestamp",
+                key: "ReceiptData.timestamp",
+                placeholder: "Enter timestamp",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.input,
-                name: "ReceiptData.external_id",
-                placeholder: "External id",
-                key: "receipt-data-external-id",
+                name: "external_id",
+                key: "ReceiptData.external_id",
+                placeholder: "Enter external id",
+                fieldType: "text",
             },
             {
-                type: FormFieldType.object,
                 name: "receipt",
-                placeholder: "receipt",
-                key: "receipt",
+                key: "ReceiptData.receipt",
+                fieldType: "group",
                 subfields: [
                     {
-                        type: FormFieldType.object,
                         name: "client",
-                        placeholder: "Client",
-                        key: "client",
+                        key: "ReceiptData.receipt.client",
+                        fieldType: "group",
                         subfields: [
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.client.name",
-                                placeholder: "Name",
-                                key: "receipt-client-name",
+                                name: "name",
+                                key: "ReceiptData.receipt.client.name",
+                                placeholder: "Enter external name",
+                                fieldType: "text",
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.client.inn",
-                                placeholder: "INN",
-                                key: "receipt-client-inn",
+                                name: "inn",
+                                key: "ReceiptData.receipt.client.inn",
+                                placeholder: "Enter external inn",
+                                fieldType: "text",
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.client.email",
-                                placeholder: "Email",
-                                key: "receipt-client-email",
+                                name: "email",
+                                key: "ReceiptData.receipt.client.email",
+                                placeholder: "Enter external email",
+                                fieldType: "text",
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.client.phone",
-                                placeholder: "Phone",
-                                key: "receipt-client-phone",
+                                name: "phone",
+                                key: "ReceiptData.receipt.client.phone",
+                                placeholder: "Enter external phone",
+                                fieldType: "text",
                             },
-                        ],
+                        ]
                     },
                     {
-                        type: FormFieldType.object,
                         name: "company",
-                        placeholder: "company",
-                        key: "company",
+                        key: "ReceiptData.receipt.company",
+                        fieldType: "group",
                         subfields: [
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.company.email",
-                                placeholder: "Email",
-                                key: "receipt-company-email",
+                                name: "email",
+                                key: "ReceiptData.receipt.company.email",
+                                placeholder: "Enter email",
+                                fieldType: "text",
                             },
                             {
-                                type: FormFieldType.picker,
-                                name: "ReceiptData.receipt.company.sno",
-                                placeholder: "SNO",
-                                key: "receipt-company-sno",
+                                name: "sno",
+                                key: "ReceiptData.receipt.company.sno",
+                                placeholder: "Enter sno",
+                                fieldType: "picker",
                                 options: SnoHandbook,
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.company.inn",
-                                placeholder: "INN",
-                                key: "receipt-company-inn",
+                                name: "inn",
+                                key: "ReceiptData.receipt.company.inn",
+                                placeholder: "Enter inn",
+                                fieldType: "text",
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.company.payment_address",
-                                placeholder: "Payment address",
-                                key: "receipt-company-payment_address",
+                                name: "payment_address",
+                                key: "ReceiptData.receipt.company.payment_address",
+                                placeholder: "Enter payment_address",
+                                fieldType: "text",
                             },
-                        ],
+                        ]
                     },
                     {
-                        type: FormFieldType.object,
-                        name: "AgentInfo",
-                        placeholder: "AgentInfo",
-                        key: "agent-info",
+                        name: "agent_info",
+                        key: "ReceiptData.receipt.agent_info",
+                        fieldType: "group",
                         subfields: [
                             {
-                                type: FormFieldType.picker,
-                                name: "ReceiptData.receipt.agent_info.type",
-                                placeholder: "Type",
-                                key: "receipt-agent_info-type",
+                                name: "type",
+                                key: "ReceiptData.receipt.agent_info.type",
+                                placeholder: "Enter type",
+                                fieldType: "picker",
                                 options: AgentInfoTypeHandbook,
                             },
                             {
-                                type: FormFieldType.object,
-                                name: "Paying Agent",
-                                placeholder: "Paying Agent",
-                                key: "paying-agent",
+                                name: "paying_agent",
+                                key: "ReceiptData.receipt.agent_info.paying_agent",
+                                fieldType: "group",
                                 subfields: [
                                     {
-                                        type: FormFieldType.input,
-                                        name: "ReceiptData.receipt.agent_info.paying_agent.operation",
-                                        placeholder: "Operation",
-                                        key: "receipt-agent-info-paying-agent-operation",
+                                        name: "operation",
+                                        key: "ReceiptData.receipt.agent_info.paying_agent.operation",
+                                        placeholder: "Enter operation",
+                                        fieldType: "text",
                                     },
                                     {
-                                        type: FormFieldType.array,
-                                        name: "ReceiptData.receipt.agent_info.paying_agent.phones",
-                                        placeholder: "Phones",
-                                        key: "receipt-agent-info-paying-agent-phones",
+                                        name: "phones",
+                                        key: "ReceiptData.receipt.agent_info.paying_agent.phones",
+                                        placeholder: "Enter phones",
+                                        fieldType: "text", //multiple
+                                    },
+                                ],
+                            },
+                            {
+                                name: "receive_payments_operator",
+                                key: "ReceiptData.receipt.agent_info.receive_payments_operator",
+                                fieldType: "group",
+                                subfields: [
+                                    {
+                                        name: "phones",
+                                        key: "ReceiptData.receipt.agent_info.receive_payments_operator.phones",
+                                        placeholder: "Enter phones",
+                                        fieldType: "text", //multiple
+                                    },
+                                ],
+                            },
+                            {
+                                name: "money_transfer_operator",
+                                key: "ReceiptData.receipt.agent_info.money_transfer_operator",
+                                fieldType: "group",
+                                subfields: [
+                                    {
+                                        name: "phones",
+                                        key: "ReceiptData.receipt.agent_info.money_transfer_operator.phones",
+                                        placeholder: "Enter phones",
+                                        fieldType: "text", //multiple
+                                    },
+                                    {
+                                        name: "name",
+                                        key: "ReceiptData.receipt.agent_info.money_transfer_operator.name",
+                                        placeholder: "Enter name",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "address",
+                                        key: "ReceiptData.receipt.agent_info.money_transfer_operator.address",
+                                        placeholder: "Enter address",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "inn",
+                                        key: "ReceiptData.receipt.agent_info.money_transfer_operator.inn",
+                                        placeholder: "Enter inn",
+                                        fieldType: "text",
+                                    }
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        name: "supplier_info",
+                        key: "ReceiptData.receipt.supplier_info",
+                        fieldType: "group",
+                        subfields: [
+                            {
+                                name: "phones",
+                                key: "ReceiptData.receipt.supplier_info.phones",
+                                placeholder: "Enter phones",
+                                fieldType: "text", //multiple
+                            },
+                        ]
+                    },
+                    {
+                        name: "items",
+                        key: "ReceiptData.receipt.items",
+                        fieldType: "array",
+                        subfields: [
+                            {
+                                name: "name",
+                                key: "ReceiptData.receipt.items.name",
+                                placeholder: "Enter name",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "price",
+                                key: "ReceiptData.receipt.items.price",
+                                placeholder: "Enter price",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "quantity",
+                                key: "ReceiptData.receipt.items.quantity",
+                                placeholder: "Enter quantity",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "sum",
+                                key: "ReceiptData.receipt.items.sum",
+                                placeholder: "Enter sum",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "measurement_unit",
+                                key: "ReceiptData.receipt.items.measurement_unit",
+                                placeholder: "Enter measurement unit",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "payment_method",
+                                key: "ReceiptData.receipt.items.payment_method",
+                                placeholder: "Enter payment method",
+                                fieldType: "picker",
+                                options: PaymentMethodTypeHandbook,
+                            },
+                            {
+                                name: "payment_object",
+                                key: "ReceiptData.receipt.items.payment_object",
+                                placeholder: "Enter payment object",
+                                fieldType: "picker",
+                                options: PaymentObjectFFD1_05,
+
+                            },
+                            {
+                                name: "nomenclature_code",
+                                key: "ReceiptData.receipt.items.nomenclature_code",
+                                placeholder: "Enter nomenclature code",
+                                fieldType: "picker",
+                                options: PaymentObjectFFD1_05,
+                            },
+                            {
+                                name: "vat",
+                                key: "ReceiptData.receipt.items.vat",
+                                fieldType: "group",
+                                subfields: [
+                                    {
+                                        name: "type",
+                                        key: "ReceiptData.receipt.items.vat.type",
+                                        placeholder: "Enter type",
+                                        fieldType: "picker",
+                                        options: VatTypeHandbook,
+
+                                    },
+                                    {
+                                        name: "sum",
+                                        key: "ReceiptData.receipt.items.vat.sum",
+                                        placeholder: "Enter sum",
+                                        fieldType: "text",
+                                    },
+                                ]
+                            },
+                            {
+                                name: "agent_info",
+                                key: "ReceiptData.receipt.items.agent_info",
+                                fieldType: "group",
+                                subfields: [
+                                    {
+                                        name: "type",
+                                        key: "ReceiptData.receipt.items.agent_info.type",
+                                        placeholder: "Enter type",
+                                        fieldType: "picker",
+                                        options: AgentInfoTypeHandbook,
+                                    },
+                                    {
+                                        name: "paying_agent",
+                                        key: "ReceiptData.receipt.items.agent_info.paying_agent",
+                                        fieldType: "group",
                                         subfields: [
                                             {
-                                                type: FormFieldType.input,
-                                                name: "ReceiptData.receipt.agent_info.paying_agent.phone",
-                                                placeholder: "Phone",
-                                                key: "receipt-agent-info-paying-agent-phone",
+                                                name: "operation",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.operation",
+                                                placeholder: "Enter operation",
+                                                fieldType: "text",
+                                            },
+                                            {
+                                                name: "phones",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.phones",
+                                                placeholder: "Enter phones",
+                                                fieldType: "text", //multiply
+                                            },
+                                        ]
+                                    },
+                                    {
+                                        name: "receive_payments_operator",
+                                        key: "ReceiptData.receipt.items.agent_info.paying_agent.receive_payments_operator",
+                                        fieldType: "group",
+                                        subfields: [
+                                            {
+                                                name: "phones",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.receive_payments_operator.phones",
+                                                placeholder: "Enter phones",
+                                                fieldType: "text", //multiply
+                                            },
+                                        ]
+                                    },
+                                    {
+                                        name: "money_transfer_operator",
+                                        key: "ReceiptData.receipt.items.agent_info.paying_agent.money_transfer_operator",
+                                        fieldType: "group",
+                                        subfields: [
+                                            {
+                                                name: "phones",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.money_transfer_operator.phones",
+                                                placeholder: "Enter phones",
+                                                fieldType: "text", //multiply
+                                            },
+                                            {
+                                                name: "name",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.money_transfer_operator.name",
+                                                placeholder: "Enter name",
+                                                fieldType: "text",
+                                            },
+                                            {
+                                                name: "address",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.money_transfer_operator.address",
+                                                placeholder: "Enter address",
+                                                fieldType: "text",
+                                            },
+                                            {
+                                                name: "inn",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.money_transfer_operator.inn",
+                                                placeholder: "Enter inn",
+                                                fieldType: "text",
                                             },
                                         ]
                                     },
                                 ]
                             },
                             {
-                                type: FormFieldType.object,
-                                name: "Receive payment operator",
-                                placeholder: "Receive payment operator",
-                                key: "receive-payment-operator",
+                                name: "supplier_info",
+                                key: "ReceiptData.receipt.items.supplier_info",
+                                fieldType: "group",
                                 subfields: [
                                     {
-                                        type: FormFieldType.input,
-                                        name: "ReceiptData.receipt.agent_info.receive_payments_operator.phones",
-                                        placeholder: "Phones",
-                                        key: "receipt-agent-info-receive-payments-operator-phones",
+                                        name: "phones",
+                                        key: "ReceiptData.receipt.items.supplier_info.phones",
+                                        placeholder: "Enter phones",
+                                        fieldType: "text", //multiply
                                     },
-                                ]
+                                    {
+                                        name: "name",
+                                        key: "ReceiptData.receipt.items.supplier_info.name",
+                                        placeholder: "Enter name",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "inn",
+                                        key: "ReceiptData.receipt.items.supplier_info.inn",
+                                        placeholder: "Enter inn",
+                                        fieldType: "text",
+                                    },
+                                ],
                             },
                             {
-                                type: FormFieldType.object,
-                                name: "Money transfer operator",
-                                placeholder: "Money transfer operator",
-                                key: "money-transfer-operator",
-                                subfields: [
-                                    {
-                                        type: FormFieldType.input,
-                                        name: "ReceiptData.receipt.agent_info.money_transfer_operator.phones",
-                                        placeholder: "Phones",
-                                        key: "receipt-agent_info.money-transfer-operator-phones",
-                                    },
-                                    {
-                                        type: FormFieldType.input,
-                                        name: "ReceiptData.receipt.agent_info.money_transfer_operator.name",
-                                        placeholder: "Name",
-                                        key: "receipt-agent_info.money-transfer-operator-names",
-                                    },
-                                    {
-                                        type: FormFieldType.input,
-                                        name: "ReceiptData.receipt.agent_info.money_transfer_operator.address",
-                                        placeholder: "Address",
-                                        key: "receipt-agent_info.money-transfer-operator-address",
-                                    },
-                                    {
-                                        type: FormFieldType.input,
-                                        name: "ReceiptData.receipt.agent_info.money_transfer_operator.inn",
-                                        placeholder: "INN",
-                                        key: "receipt-agent_info.money-transfer-operator-inn",
-                                    },
-                                ]
+                                name: "user_data",
+                                key: "ReceiptData.receipt.items.user_data",
+                                placeholder: "Enter user_data",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "excise",
+                                key: "ReceiptData.receipt.items.excise",
+                                placeholder: "Enter excise",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "country_code",
+                                key: "ReceiptData.receipt.items.country_code",
+                                placeholder: "Enter country_code",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "declaration_number",
+                                key: "ReceiptData.receipt.items.declaration_number",
+                                placeholder: "Enter declaration_number",
+                                fieldType: "text",
+                            },
+                        ]
+                    },
+                    {
+                        name: "payments",
+                        key: "ReceiptData.receipt.payments",
+                        fieldType: "array",
+                        subfields: [
+                            {
+                                name: "type",
+                                key: "ReceiptData.receipt.payments.type",
+                                placeholder: "Enter type",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "sum",
+                                key: "ReceiptData.receipt.payments.sum",
+                                placeholder: "Enter sum",
+                                fieldType: "text",
                             }
                         ],
                     },
                     {
-                        type: FormFieldType.object,
-                        name: "supplier_info",
-                        placeholder: "Supplier info",
-                        key: "supplier_info",
+                        name: "vats",
+                        key: "ReceiptData.receipt.vats",
+                        fieldType: "array",
                         subfields: [
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.supplier_info.phones",
-                                placeholder: "Phones",
-                                key: "receipt-supplier-info-phones",
+                                name: "type",
+                                key: "ReceiptData.receipt.vats.type",
+                                placeholder: "Enter type",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "sum",
+                                key: "ReceiptData.receipt.vats.sum",
+                                placeholder: "Enter sum",
+                                fieldType: "text",
+                            }
+                        ],
+                    },
+                    {
+                        name: "total",
+                        key: "ReceiptData.receipt.total",
+                        placeholder: "Enter total",
+                        fieldType: "text",
+                    },
+                    {
+                        name: "additional_check_props",
+                        key: "ReceiptData.receipt.additional_check_props",
+                        placeholder: "Enter additional_check_props",
+                        fieldType: "text",
+                    },
+                    {
+                        name: "cashier",
+                        key: "ReceiptData.receipt.cashier",
+                        placeholder: "Enter cashier",
+                        fieldType: "text",
+                    },
+                    {
+                        name: "additional_user_props",
+                        key: "ReceiptData.receipt.additional_user_props",
+                        placeholder: "Enter additional_user_props",
+                        fieldType: "array",
+                        subfields: [
+                            {
+                                name: "name",
+                                key: "ReceiptData.receipt.additional_user_props.name",
+                                placeholder: "Enter name",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "value",
+                                key: "ReceiptData.receipt.additional_user_props.value",
+                                placeholder: "Enter value",
+                                fieldType: "text",
+                            },
+                        ]
+                    },
+                ]
+            },
+
+        ],
+    },
+];
+
+
+export const fieldsFFD1_02: Field[] = [
+    {
+        fieldType: "text",
+        name: "PaymentMethod",
+        placeholder: "Enter Payment Method",
+        key: "PaymentMethod",
+    },
+    {
+        fieldType: "group",
+        name: "PaymentDetails",
+        key: "PaymentDetails",
+        subfields: [
+            {
+                fieldType: "text",
+                name: "Value",
+                placeholder: "Value",
+                key: "PaymentDetails.Value",
+            },
+            {
+                fieldType: "text",
+                name: "Type",
+                placeholder: "Type",
+                key: "PaymentDetails.Type",
+            },
+            {
+                fieldType: "text",
+                name: "PayToken",
+                placeholder: "PayToken",
+                key: "PaymentDetails.PayToken",
+            },
+        ]
+    },
+    {
+        name: "Order ID",
+        key: "OrderId",
+        placeholder: "Enter Order ID",
+        fieldType: "text",
+    },
+    {
+        name: "Amount",
+        key: "Amount",
+        placeholder: "Enter Amount",
+        fieldType: "text",
+    },
+    {
+        name: "Currency",
+        key: "Currency",
+        placeholder: "Enter Currency",
+        fieldType: "text",
+    },
+    {
+        name: "Description",
+        key: "Description",
+        placeholder: "Enter Description",
+        fieldType: "text",
+    },
+    {
+        name: "RebillFlag",
+        key: "RebillFlag",
+        placeholder: "Enter RebillFlag",
+        fieldType: "picker",
+        options: booleanHandbook,
+    },
+    {
+        name: "Customer Info",
+        key: "CustomerInfo",
+        fieldType: "group",
+        subfields: [
+            {
+                name: "Email",
+                key: "CustomerInfo.Email",
+                placeholder: "Enter Email",
+                fieldType: "text",
+            },
+            {
+                name: "ReceiptEmail",
+                key: "CustomerInfo.ReceiptEmail",
+                placeholder: "Enter Receipt Email",
+                fieldType: "text",
+            },
+            {
+                name: "IsSendReceipt",
+                key: "CustomerInfo.IsSendReceipt",
+                placeholder: "Enter Is Send Receipt",
+                fieldType: "text",
+            },
+            {
+                name: "Phone",
+                key: "CustomerInfo.Phone",
+                placeholder: "Enter Phone",
+                fieldType: "text",
+            },
+            {
+                name: "Language",
+                key: "CustomerInfo.Language",
+                placeholder: "Enter Language",
+                fieldType: "text",
+            },
+            {
+                name: "Address",
+                key: "CustomerInfo.Address",
+                placeholder: "Enter Address",
+                fieldType: "text",
+            },
+            {
+                name: "Town",
+                key: "CustomerInfo.Town",
+                placeholder: "Enter Town",
+                fieldType: "text",
+            },
+            {
+                name: "ZIP",
+                key: "CustomerInfo.ZIP",
+                placeholder: "Enter ZIP",
+                fieldType: "text",
+            },
+            {
+                name: "Country",
+                key: "CustomerInfo.Country",
+                placeholder: "Enter Country",
+                fieldType: "text",
+            },
+            {
+                name: "IP",
+                key: "CustomerInfo.IP",
+                placeholder: "Enter IP",
+                fieldType: "text",
+            },
+            {
+                name: "UserId",
+                key: "CustomerInfo.UserId",
+                placeholder: "Enter User Id",
+                fieldType: "text",
+            },
+        ],
+    },
+    {
+        name: "ExtraData",
+        key: "ExtraData",
+        fieldType: "group",
+        subfields: [
+            {
+                name: "ReturnUrl",
+                key: "ExtraData.ReturnUrl",
+                placeholder: "Enter Return Url",
+                fieldType: "text",
+            },
+            {
+                name: "ReturnUrl",
+                key: "ExtraData.WebhookUrl",
+                placeholder: "Enter Webhook Url",
+                fieldType: "text",
+            },
+            {
+                name: "ScreenHeight",
+                key: "ExtraData.ScreenHeight",
+                placeholder: "Enter Screen Height",
+                fieldType: "text",
+            },
+            {
+                name: "ScreenWidth",
+                key: "ExtraData.ScreenWidth",
+                placeholder: "Enter Screen Width",
+                fieldType: "text",
+            },
+            {
+                name: "ChallengeWindowSize",
+                key: "ExtraData.ChallengeWindowSize",
+                placeholder: "Enter Screen Challenge Window Size",
+                fieldType: "text",
+            },
+            {
+                name: "TimeZoneOffset",
+                key: "ExtraData.TimeZoneOffset",
+                placeholder: "Enter Time Zone Offset",
+                fieldType: "text",
+            },
+            {
+                name: "ColorDepth",
+                key: "ExtraData.ColorDepth",
+                placeholder: "Enter Color Depth",
+                fieldType: "text",
+            },
+            {
+                name: "Region",
+                key: "ExtraData.Region",
+                placeholder: "Enter Region",
+                fieldType: "text",
+            },
+            {
+                name: "UserAgent",
+                key: "ExtraData.UserAgent",
+                placeholder: "Enter User Agent",
+                fieldType: "text",
+            },
+            {
+                name: "acceptHeader",
+                key: "ExtraData.acceptHeader",
+                placeholder: "Enter accept Header",
+                fieldType: "text",
+            },
+            {
+                name: "JavaEnabled",
+                key: "ExtraData.JavaEnabled",
+                placeholder: "Enter Java Enabled",
+                fieldType: "picker",
+                options: booleanHandbook,
+            },
+            {
+                name: "javaScriptEnabled",
+                key: "ExtraData.javaScriptEnabled",
+                placeholder: "Enter java Script Enabled",
+                fieldType: "picker",
+                options: booleanHandbook,
+            },
+        ],
+    },
+    {
+        name: "ReceiptData",
+        key: "ReceiptData",
+        fieldType: "group",
+        subfields: [
+            {
+                name: "timestamp",
+                key: "ReceiptData.timestamp",
+                placeholder: "Enter timestamp",
+                fieldType: "text",
+            },
+            {
+                name: "external_id",
+                key: "ReceiptData.external_id",
+                placeholder: "Enter external id",
+                fieldType: "text",
+            },
+            {
+                name: "receipt",
+                key: "ReceiptData.receipt",
+                fieldType: "group",
+                subfields: [
+                    {
+                        name: "client",
+                        key: "ReceiptData.receipt.client",
+                        fieldType: "group",
+                        subfields: [
+                            {
+                                name: "name",
+                                key: "ReceiptData.receipt.client.name",
+                                placeholder: "Enter external name",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "inn",
+                                key: "ReceiptData.receipt.client.inn",
+                                placeholder: "Enter external inn",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "email",
+                                key: "ReceiptData.receipt.client.email",
+                                placeholder: "Enter external email",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "phone",
+                                key: "ReceiptData.receipt.client.phone",
+                                placeholder: "Enter external phone",
+                                fieldType: "text",
                             },
                         ]
                     },
                     {
-                        type: FormFieldType.array,
-                        name: "ReceiptData.receipt.items",
-                        placeholder: "Items",
-                        key: "items",
+                        name: "company",
+                        key: "ReceiptData.receipt.company",
+                        fieldType: "group",
                         subfields: [
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.items.name",
-                                placeholder: "Name",
-                                key: "receipt-items-name",
+                                name: "email",
+                                key: "ReceiptData.receipt.company.email",
+                                placeholder: "Enter email",
+                                fieldType: "text",
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.items.price",
-                                placeholder: "Price",
-                                key: "receipt-items-price",
+                                name: "sno",
+                                key: "ReceiptData.receipt.company.sno",
+                                placeholder: "Enter sno",
+                                fieldType: "picker",
+                                options: SnoHandbook,
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.items.quantity",
-                                placeholder: "Quantity",
-                                key: "receipt-items-quantity",
+                                name: "inn",
+                                key: "ReceiptData.receipt.company.inn",
+                                placeholder: "Enter inn",
+                                fieldType: "text",
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.items.sum",
-                                placeholder: "Sum",
-                                key: "receipt-items-sum",
+                                name: "payment_address",
+                                key: "ReceiptData.receipt.company.payment_address",
+                                placeholder: "Enter payment_address",
+                                fieldType: "text",
+                            },
+                        ]
+                    },
+                    {
+                        name: "items",
+                        key: "ReceiptData.receipt.items",
+                        fieldType: "array",
+                        subfields: [
+                            {
+                                name: "name",
+                                key: "ReceiptData.receipt.items.name",
+                                placeholder: "Enter name",
+                                fieldType: "text",
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.items.measurement_unit",
-                                placeholder: "Measurement unit",
-                                key: "receipt-items-measurement_unit",
+                                name: "price",
+                                key: "ReceiptData.receipt.items.price",
+                                placeholder: "Enter price",
+                                fieldType: "text",
                             },
                             {
-                                type: FormFieldType.picker,
-                                name: "ReceiptData.receipt.items.payment_method",
-                                placeholder: "Payment method",
-                                key: "receipt-items-payment-method",
+                                name: "quantity",
+                                key: "ReceiptData.receipt.items.quantity",
+                                placeholder: "Enter quantity",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "sum",
+                                key: "ReceiptData.receipt.items.sum",
+                                placeholder: "Enter sum",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "measure",
+                                key: "ReceiptData.receipt.items.measure",
+                                placeholder: "Enter measure",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "payment_method",
+                                key: "ReceiptData.receipt.items.payment_method",
+                                placeholder: "Enter payment method",
+                                fieldType: "picker",
                                 options: PaymentMethodTypeHandbook,
                             },
                             {
-                                type: FormFieldType.picker,
-                                name: "ReceiptData.receipt.items.payment_object",
-                                placeholder: "Payment object",
-                                key: "receipt-items-payment-object",
-                                options: PaymentObjectFFD1_05,
+                                name: "payment_object",
+                                key: "ReceiptData.receipt.items.payment_object",
+                                placeholder: "Enter payment object",
+                                fieldType: "picker",
+                                options: PaymentObjectFFD1_2Handbook,
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.items.nomenclature_code",
-                                placeholder: "Nomenclature code",
-                                key: "receipt-items-nomenclature-code",
-                                options: PaymentObjectFFD1_05,
-                            },
-                            {
-                                type: FormFieldType.object,
                                 name: "vat",
-                                placeholder: "Vat",
-                                key: "items-vat",
+                                key: "ReceiptData.receipt.items.vat",
+                                fieldType: "group",
                                 subfields: [
                                     {
-                                        type: FormFieldType.picker,
-                                        name: "ReceiptData.receipt.items.vat.type",
-                                        placeholder: "Type",
-                                        key: "receipt-items-vat-type",
+                                        name: "type",
+                                        key: "ReceiptData.receipt.items.vat.type",
+                                        placeholder: "Enter type",
+                                        fieldType: "picker",
                                         options: VatTypeHandbook,
+
                                     },
                                     {
-                                        type: FormFieldType.input,
-                                        name: "ReceiptData.receipt.items.vat.sum",
-                                        placeholder: "Sum",
-                                        key: "receipt-items-vat-sum",
-                                    },
-                                ],
-                            },
-                            {
-                                type: FormFieldType.object,
-                                name: "agent info",
-                                placeholder: "Agent info",
-                                key: "items-agent_info",
-                                subfields: [
-                                    {
-                                        type: FormFieldType.picker,
-                                        name: "ReceiptData.receipt.items.agent_info.type",
-                                        placeholder: "Type",
-                                        key: "receipt-items-agent-info-type",
-                                        options: AgentInfoTypeHandbook,
-                                    },
-                                    {
-                                        type: FormFieldType.object,
-                                        name: "paying agent",
-                                        placeholder: "Paying agent",
-                                        key: "items-paying-agent",
-                                        subfields: [
-                                            {
-                                                type: FormFieldType.input,
-                                                name: "ReceiptData.receipt.items.agent_info.paying_agent.operation",
-                                                placeholder: "Paying agent",
-                                                key: "receipt-items-operation-info-paying-agent-operation",
-                                            },
-                                            {
-                                                type: FormFieldType.input,
-                                                name: "ReceiptData.receipt.items.agent_info.paying_agent.phones",
-                                                placeholder: "Phones",
-                                                key: "receipt-items-operation-info-paying-agent-phones",
-                                            },
-                                        ],
-                                    },
-                                    {
-                                        type: FormFieldType.object,
-                                        name: "receive_payments_operator",
-                                        placeholder: "Receive payments operator",
-                                        key: "items-agent-info-receive_payments_operator",
-                                        subfields: [
-                                            {
-                                                type: FormFieldType.input,
-                                                name: "ReceiptData.receipt.items.agent_info.receive_payments_operator.phones",
-                                                placeholder: "Phones",
-                                                key: "receipt-items-operation-info-receive-payments-operator-phones",
-                                            },
-                                        ],
-                                    },
-                                    {
-                                        type: FormFieldType.object,
-                                        name: "money transfer operator",
-                                        placeholder: "money transfer operator",
-                                        key: "items-agent-info-money-transfer-operator",
-                                        subfields: [
-                                            {
-                                                type: FormFieldType.input,
-                                                name: "ReceiptData.receipt.items.agent_info.money_transfer_operator.phones",
-                                                placeholder: "Phones",
-                                                key: "receipt-items-agent-info-money-transfer-operator-phones",
-                                            },
-                                            {
-                                                type: FormFieldType.input,
-                                                name: "ReceiptData.receipt.items.agent_info.money_transfer_operator.name",
-                                                placeholder: "Name",
-                                                key: "receipt-items-agent-info-money-transfer-operator-name",
-                                            },
-                                            {
-                                                type: FormFieldType.input,
-                                                name: "ReceiptData.receipt.items.agent_info.money_transfer_operator.address",
-                                                placeholder: "Address",
-                                                key: "receipt-items-agent-info-money-transfer-operator-address",
-                                            },
-                                            {
-                                                type: FormFieldType.input,
-                                                name: "ReceiptData.receipt.items.agent_info.money_transfer_operator.inn",
-                                                placeholder: "INN",
-                                                key: "receipt-items-agent-info-money-transfer-operator-inn",
-                                            },
-                                        ],
-                                    }
-                                ],
-                            },
-                            {
-                                type: FormFieldType.object,
-                                name: "ItemsSupplierInfo",
-                                placeholder: "Items Supplier Info",
-                                key: "items-supplier-info",
-                                subfields: [
-                                    {
-                                        type: FormFieldType.input,
-                                        name: "ReceiptData.receipt.items.supplier_info.phones",
-                                        placeholder: "Phones",
-                                        key: "receipt-items-supplier-info-phones",
-                                    },
-                                    {
-                                        type: FormFieldType.input,
-                                        name: "ReceiptData.receipt.items.supplier_info.name",
-                                        placeholder: "Name",
-                                        key: "receipt-items-supplier-info-name",
-                                    },
-                                    {
-                                        type: FormFieldType.input,
-                                        name: "ReceiptData.receipt.items.supplier_info.inn",
-                                        placeholder: "INN",
-                                        key: "receipt-items-supplier-info-inn",
+                                        name: "sum",
+                                        key: "ReceiptData.receipt.items.vat.sum",
+                                        placeholder: "Enter sum",
+                                        fieldType: "text",
                                     },
                                 ]
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.items.user_data",
-                                placeholder: "User data",
-                                key: "receipt-items-user-data",
+                                name: "agent_info",
+                                key: "ReceiptData.receipt.items.agent_info",
+                                fieldType: "group",
+                                subfields: [
+                                    {
+                                        name: "type",
+                                        key: "ReceiptData.receipt.items.agent_info.type",
+                                        placeholder: "Enter type",
+                                        fieldType: "picker",
+                                        options: AgentInfoTypeHandbook,
+                                    },
+                                    {
+                                        name: "paying_agent",
+                                        key: "ReceiptData.receipt.items.agent_info.paying_agent",
+                                        fieldType: "group",
+                                        subfields: [
+                                            {
+                                                name: "operation",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.operation",
+                                                placeholder: "Enter operation",
+                                                fieldType: "text",
+                                            },
+                                            {
+                                                name: "phones",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.phones",
+                                                placeholder: "Enter phones",
+                                                fieldType: "text", //multiply
+                                            },
+                                        ]
+                                    },
+                                    {
+                                        name: "receive_payments_operator",
+                                        key: "ReceiptData.receipt.items.agent_info.paying_agent.receive_payments_operator",
+                                        fieldType: "group",
+                                        subfields: [
+                                            {
+                                                name: "phones",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.receive_payments_operator.phones",
+                                                placeholder: "Enter phones",
+                                                fieldType: "text", //multiply
+                                            },
+                                        ]
+                                    },
+                                    {
+                                        name: "money_transfer_operator",
+                                        key: "ReceiptData.receipt.items.agent_info.paying_agent.money_transfer_operator",
+                                        fieldType: "group",
+                                        subfields: [
+                                            {
+                                                name: "phones",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.money_transfer_operator.phones",
+                                                placeholder: "Enter phones",
+                                                fieldType: "text", //multiply
+                                            },
+                                            {
+                                                name: "name",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.money_transfer_operator.name",
+                                                placeholder: "Enter name",
+                                                fieldType: "text",
+                                            },
+                                            {
+                                                name: "address",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.money_transfer_operator.address",
+                                                placeholder: "Enter address",
+                                                fieldType: "text",
+                                            },
+                                            {
+                                                name: "inn",
+                                                key: "ReceiptData.receipt.items.agent_info.paying_agent.money_transfer_operator.inn",
+                                                placeholder: "Enter inn",
+                                                fieldType: "text",
+                                            },
+                                        ]
+                                    },
+                                ]
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.items.excise",
-                                placeholder: "Excise",
-                                key: "receipt-items-excise",
+                                name: "supplier_info",
+                                key: "ReceiptData.receipt.items.supplier_info",
+                                fieldType: "group",
+                                subfields: [
+                                    {
+                                        name: "phones",
+                                        key: "ReceiptData.receipt.items.supplier_info.phones",
+                                        placeholder: "Enter phones",
+                                        fieldType: "text", //multiply
+                                    },
+                                    {
+                                        name: "name",
+                                        key: "ReceiptData.receipt.items.supplier_info.name",
+                                        placeholder: "Enter name",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "inn",
+                                        key: "ReceiptData.receipt.items.supplier_info.inn",
+                                        placeholder: "Enter inn",
+                                        fieldType: "text",
+                                    },
+                                ],
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.items.country_code",
-                                placeholder: "Country code",
-                                key: "receipt-items-country-code",
+                                name: "user_data",
+                                key: "ReceiptData.receipt.items.user_data",
+                                placeholder: "Enter user_data",
+                                fieldType: "text",
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.items.declaration_number",
-                                placeholder: "Declaration number",
-                                key: "receipt-items-country-declaration-number",
+                                name: "excise",
+                                key: "ReceiptData.receipt.items.excise",
+                                placeholder: "Enter excise",
+                                fieldType: "text",
                             },
+                            {
+                                name: "country_code",
+                                key: "ReceiptData.receipt.items.country_code",
+                                placeholder: "Enter country_code",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "declaration_number",
+                                key: "ReceiptData.receipt.items.declaration_number",
+                                placeholder: "Enter declaration_number",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "mark_quantity",
+                                key: "ReceiptData.receipt.items.mark_quantity",
+                                fieldType: "group",
+                                subfields: [
+                                    {
+                                        name: "numerator",
+                                        key: "ReceiptData.receipt.items.numerator",
+                                        placeholder: "Enter numerator",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "denominator",
+                                        key: "ReceiptData.receipt.items.denominator",
+                                        placeholder: "Enter denominator",
+                                        fieldType: "text",
+                                    },
+                                ]
+                            },
+                            {
+                                name: "mark_processing_mode",
+                                key: "ReceiptData.receipt.items.mark_processing_mode",
+                                placeholder: "Enter mark_processing_mode",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "sectoral_item_props",
+                                key: "ReceiptData.receipt.items.sectoral_item_props",
+                                placeholder: "Enter sectoral_item_props",
+                                fieldType: "array",
+                                subfields: [
+                                    {
+                                        name: "federal_id",
+                                        key: "ReceiptData.receipt.items.sectoral_item_props.federal_id",
+                                        placeholder: "Enter federal_id",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "date",
+                                        key: "ReceiptData.receipt.items.sectoral_item_props.date",
+                                        placeholder: "Enter date",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "number",
+                                        key: "ReceiptData.receipt.items.sectoral_item_props.number",
+                                        placeholder: "Enter number",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "value",
+                                        key: "ReceiptData.receipt.items.sectoral_item_props.value",
+                                        placeholder: "Enter value",
+                                        fieldType: "text",
+                                    },
+                                ],
+                            },
+                            {
+                                name: "mark_code",
+                                key: "ReceiptData.receipt.items.mark_code",
+                                fieldType: "group",
+                                subfields: [
+                                    {
+                                        name: "unknown",
+                                        key: "ReceiptData.receipt.items.mark_code.unknown",
+                                        placeholder: "Enter unknown",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "ean",
+                                        key: "ReceiptData.receipt.items.mark_code.ean",
+                                        placeholder: "Enter ean",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "ean13",
+                                        key: "ReceiptData.receipt.items.mark_code.ean13",
+                                        placeholder: "Enter ean13",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "itf14",
+                                        key: "ReceiptData.receipt.items.mark_code.itf14",
+                                        placeholder: "Enter itf14",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "gs10",
+                                        key: "ReceiptData.receipt.items.mark_code.gs10",
+                                        placeholder: "Enter gs10",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "gs1m",
+                                        key: "ReceiptData.receipt.items.mark_code.gs1m",
+                                        placeholder: "Enter gs1m",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "short",
+                                        key: "ReceiptData.receipt.items.mark_code.short",
+                                        placeholder: "Enter short",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "fur",
+                                        key: "ReceiptData.receipt.items.mark_code.fur",
+                                        placeholder: "Enter fur",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "egais20",
+                                        key: "ReceiptData.receipt.items.mark_code.egais20",
+                                        placeholder: "Enter egais20",
+                                        fieldType: "text",
+                                    },
+                                    {
+                                        name: "egais30",
+                                        key: "ReceiptData.receipt.items.mark_code.egais30",
+                                        placeholder: "Enter egais30",
+                                        fieldType: "text",
+                                    },
+                                ]
+                            },
+                        ]
+                    },
+                    {
+                        name: "payments",
+                        key: "ReceiptData.receipt.payments",
+                        fieldType: "array",
+                        subfields: [
+                            {
+                                name: "type",
+                                key: "ReceiptData.receipt.payments.type",
+                                placeholder: "Enter type",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "sum",
+                                key: "ReceiptData.receipt.payments.sum",
+                                placeholder: "Enter sum",
+                                fieldType: "text",
+                            }
                         ],
                     },
                     {
-                        type: FormFieldType.array,
-                        name: "ReceiptData.receipt.payments",
-                        placeholder: "payments",
-                        key: "payments",
-                        subfields: [
-                            {
-                                type: FormFieldType.picker,
-                                name: "ReceiptData.receipt.payments.type",
-                                placeholder: "Type",
-                                key: "receipt-payments.type",
-                                options: PaymentsTypeHandbook,
-                            },
-                            {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.payments.sum",
-                                placeholder: "Sum",
-                                key: "receipt-payments-sum",
-                            },
-                        ]
-                    },
-                    {
-                        type: FormFieldType.object,
                         name: "vats",
-                        placeholder: "vats",
-                        key: "payment-vats",
+                        key: "ReceiptData.receipt.vats",
+                        fieldType: "array",
                         subfields: [
                             {
-                                type: FormFieldType.picker,
-                                name: "ReceiptData.receipt.vats.type",
-                                placeholder: "Type",
-                                key: "receipt-vats-type",
-                                options: VatTypeHandbook,
+                                name: "type",
+                                key: "ReceiptData.receipt.vats.type",
+                                placeholder: "Enter type",
+                                fieldType: "text",
                             },
                             {
-                                type: FormFieldType.input,
-                                name: "ReceiptData.receipt.vats.sum",
-                                placeholder: "Sum",
-                                key: "receipt-vats-sum",
+                                name: "sum",
+                                key: "ReceiptData.receipt.vats.sum",
+                                placeholder: "Enter sum",
+                                fieldType: "text",
+                            }
+                        ],
+                    },
+                    {
+                        name: "total",
+                        key: "ReceiptData.receipt.total",
+                        placeholder: "Enter total",
+                        fieldType: "text",
+                    },
+                    {
+                        name: "additional_check_props",
+                        key: "ReceiptData.receipt.additional_check_props",
+                        placeholder: "Enter additional_check_props",
+                        fieldType: "text",
+                    },
+                    {
+                        name: "cashier",
+                        key: "ReceiptData.receipt.cashier",
+                        placeholder: "Enter cashier",
+                        fieldType: "text",
+                    },
+                    {
+                        name: "additional_user_props",
+                        key: "ReceiptData.receipt.additional_user_props",
+                        placeholder: "Enter additional_user_props",
+                        fieldType: "array",
+                        subfields: [
+                            {
+                                name: "name",
+                                key: "ReceiptData.receipt.additional_user_props.name",
+                                placeholder: "Enter name",
+                                fieldType: "text",
+                            },
+                            {
+                                name: "value",
+                                key: "ReceiptData.receipt.additional_user_props.value",
+                                placeholder: "Enter value",
+                                fieldType: "text",
                             },
                         ]
-                    },
-                    {
-                        type: FormFieldType.input,
-                        name: "ReceiptData.receipt.total",
-                        placeholder: "Total",
-                        key: "receipt-total",
-                    },
-                    {
-                        type: FormFieldType.input,
-                        name: "ReceiptData.receipt.additional_check_props",
-                        placeholder: "Additional check props",
-                        key: "receipt-additional-check-props",
-                    },
-                    {
-                        type: FormFieldType.input,
-                        name: "ReceiptData.receipt.cashier",
-                        placeholder: "Cashier",
-                        key: "receipt-cashier",
-                    },
-                    {
-                        type: FormFieldType.input,
-                        name: "ReceiptData.receipt.additional_user_props.name",
-                        placeholder: "Name",
-                        key: "receipt-additional-user-props-name",
-                    },
-                    {
-                        type: FormFieldType.input,
-                        name: "ReceiptData.receipt.additional_user_props.value",
-                        placeholder: "Value",
-                        key: "receipt-additional-user-props-value",
                     },
                 ]
-            }
+
+            },
         ]
     }
-
-]
-
-
-
-/*const renderField = (field: any, depth: number = 0, parentName: string = '') => {
-    const { type, name, placeholder, key, options, subfields } = field;
-
-    const isExpanded = expanded[key];
-    const isActive = activeSection === key;
-    const backgroundColor = isActive
-        ? `rgba(208, 193, 218, ${1 - depth * 0.2})`
-        : `rgba(208, 193, 218, ${0.5 - depth * 0.1})`;
-
-
-    switch (type) {
-        case FormFieldType.input: {
-            return (
-                <Controller
-                    key={key}
-                    control={control}
-                    name={name as keyof CryptogramPayment}
-                    render={({ field: { onChange, value } }) => (
-                        <View style={{ marginBottom: 15 }}>
-                            <TextInput
-                                label={placeholder}
-                                value={value?.toString()}
-                                onChangeText={onChange}
-                            />
-                        </View>
-                    )}
-                />
-            );
-        }
-        case FormFieldType.picker: {
-            return (
-                <View key={key} style={styles.fieldContainer}>
-                    <Controller
-                        control={control}
-                        name={name}
-                        render={({ field: { onChange, value } }) => (
-                            <View>
-                                <Text style={styles.label}>{placeholder}</Text>
-                                <List.Accordion
-                                    title={selected[name] || "Select an option"}
-                                    style={styles.dropdownContainer}
-                                    expanded={expanded[key]}
-                                    onPress={() => toggleExpand(key)}
-                                >
-                                    {options?.map((option: any) => (
-                                        <List.Item
-                                            key={option.value.toString()}
-                                            title={option.label}
-                                            onPress={() => handleSelect(name, option.value, onChange)}
-                                        />
-                                    ))}
-                                </List.Accordion>
-                            </View>
-                        )}
-                    />
-                </View>
-            );
-        }
-        case FormFieldType.object: {
-            return (
-                <View key={key} style={[styles.sectionContainer, { backgroundColor }]}>
-                    <TouchableOpacity onPress={() => toggleExpand(key)}>
-                        <Text style={[styles.sectionTitle, isExpanded ? styles.expandedTitle : styles.collapsedTitle]}>
-                            {placeholder} {isExpanded ? '-' : '+'}
-                        </Text>
-                    </TouchableOpacity>
-
-                    {isExpanded && (
-                        <View>
-                            {subfields?.map((subfield: any) => renderField(subfield, depth + 1))}
-                        </View>
-                    )}
-                </View>
-            );
-        }
-        case FormFieldType.array: {
-            return (
-                <View key={key} style={[styles.sectionContainer, { backgroundColor }]}>
-                    <TouchableOpacity onPress={() => toggleExpand(key)}>
-                        <Text style={[styles.sectionTitle, isExpanded ? styles.expandedTitle : styles.collapsedTitle]}>
-                            {placeholder} {isExpanded ? '-' : '+'}
-                        </Text>
-                    </TouchableOpacity>
-
-                    {isExpanded && (
-                        <View>
-                            {fields.map((item, index) => (
-                                <View key={item.id} style={styles.arrayItemContainer}>
-                                    {subfields.map((subfield: any) => renderField(subfield, depth + 1, `ReceiptData.items.${index}`))}
-                                    <Button title="Remove Item" onPress={() => remove(index)} />
-                                </View>
-                            ))}
-
-                            <Button title="Add Item" onPress={() => append({ name: '', price: '', quantity: '', sum: '', vat: { type: '', sum: '' } })} />
-                        </View>
-                    )}
-                </View>
-            );
-        }
-        default: return null;
-    }
-};*/
+];

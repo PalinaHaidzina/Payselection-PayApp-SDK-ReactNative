@@ -12,6 +12,7 @@ import {
     TransactionStateDeclined,
     TransactionStateWaitFor3ds,
 } from "payselection-pay-app-sdk-reactnative/src/types/status/statusResponse";
+import {CryptogramValueProps} from "payselection-pay-app-sdk-reactnative/src/types/payment/cryptoUtils";
 
 
 export const MockCryptogramPaymentDataFFD1_05: CryptogramPayment = {
@@ -271,7 +272,7 @@ export const MockSberPaymentDataFFD1_05: SberPayPayment = {
     PaymentMethod: "SberPay",
 }
 
-export const MockCryptogramPaymentDataFFD1_2: CryptogramPayment = {
+export const MockCryptogramPaymentDataFFD1_2 = {
     OrderId: "SAM_SDK_3",
     Amount: "11.00",
     Currency: "RUB",
@@ -409,10 +410,7 @@ export const MockCryptogramPaymentDataFFD1_2: CryptogramPayment = {
             }]
         }
     },
-    PaymentDetails: {
-        Value: "",
-    },
-    PaymentMethod: "Cryptogram",
+    PaymentMethod: "",
 }
 
 export const MockTransactionStateWaitFor3ds: TransactionStateWaitFor3ds = {
@@ -474,5 +472,21 @@ export const cryptogramECDHValueData = {
         ExpYear: "44"
     },
     PaymentMethod: "Cryptogram",
+    MessageExpiration: Date.now() + 86400000,
+}
+
+export const emptyCryptogramValueData: CryptogramValueProps = {
+    TransactionDetails: {
+        Amount: "",
+        Currency: "",
+    },
+    PaymentDetails: {
+        CardholderName: "",
+        CardNumber: "",
+        CVC: "",
+        ExpMonth: "",
+        ExpYear: ""
+    },
+    PaymentMethod: "",
     MessageExpiration: Date.now() + 86400000,
 }

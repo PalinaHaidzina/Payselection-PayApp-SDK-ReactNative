@@ -16,4 +16,5 @@ export const Colors = {
   tabIconSelected: tintColorLight,
   borderColor: '#D4D7E3',
   secondaryText: '#BEBEBF',
+  buttonBackground: '#ADC2C1',
 };

@@ -1,346 +1,459 @@
-import {paymentInfoList} from "@/constants/fieldList";
-import {FormFieldType} from "@/constants/formFielsLists/commonTypes";
-import { CryptogramPayment } from "payselection-pay-app-sdk-reactnative/src/types/payment/paymentPayload";
-import {Controller, useFieldArray, useForm} from "react-hook-form";
-import {View, Text, Button, StyleSheet, TouchableOpacity} from "react-native";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState} from 'react';
+import {View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Pressable, ScrollView} from 'react-native';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import {defaultPaymentPayloadValues} from "@/constants/formFielsLists/formDefaultValues";
+import {List} from 'react-native-paper';
+import {Field} from "@/constants/fieldList";
+import {
+    CryptogramPayment, CryptogramRSAPayment, ExternalFormPayment,
+    PublicPayPayloadBase, QRCodePayment, SberPayPayment, TokenBasedPayment
+} from "payselection-pay-app-sdk-reactnative/src/types/payment/paymentPayload";
+import {signatureGeneration, SignatureProps} from "payselection-pay-app-sdk-reactnative/src/utils/common";
+import {
+    MultiStateTransactionInfo,
+    TransactionStateDeclined, TransactionStateRedirect, TransactionStateWaitFor3ds
+} from "payselection-pay-app-sdk-reactnative/src/types/status/statusResponse";
+import {
+    emptyCryptogramValueData,
+    MockPayResponse,
+    MockTransactionStateWaitFor3ds,
+    MockTransactionStatus
+} from "@/constants/mockData";
+import {PayResponse} from "payselection-pay-app-sdk-reactnative/src/types/payment/paymentResponse";
+import {
+    CryptogramValueProps, getCryptogramECDHValue,
+    getCryptogramRSAValue
+} from "payselection-pay-app-sdk-reactnative/src/types/payment/cryptoUtils";
+import {defineFieldsList, generateXRequestId} from "@/common/utils";
+import {PaymentMethod} from "@/types/types";
+import paymentApi from "payselection-pay-app-sdk-reactnative/src/api/payment";
+import {
+    GetStatusByOrderIdHeader,
+    GetStatusByTransactionIdHeader
+} from "payselection-pay-app-sdk-reactnative/src/types/status/statusPayload";
+import getStatusApi from "payselection-pay-app-sdk-reactnative/src/api/status";
 import {Colors} from "@/constants/Colors";
-import { TextInput, List } from 'react-native-paper';
-
 
 interface DynamicFormProps {
     defaultFormFields: any;
+    fieldList: Field[]
 }
 
-interface FormField {
-    type: FormFieldType;
-    name: string;
-    placeholder?: string;
-    key: string;
-    options?: Array<{ label: string; value: string | number | boolean}>;
-    subfields?: FormField[];
+const signatureTransaction: SignatureProps = {
+    requestMethod: 'GET',
+    url: '',
+    xSiteId: '21044',
+    xRequestId: '',
+    siteSecretKey: '',
 }
 
-const DynamicForm = ({ defaultFormFields }: DynamicFormProps) => {
-    const { control, handleSubmit, reset } = useForm({
-        defaultValues: defaultFormFields
+const signatureOrder: SignatureProps = {
+    requestMethod: 'GET',
+    url: '',
+    xSiteId: '21044',
+    xRequestId: '',
+    siteSecretKey: '',
+}
+
+const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
+    const { control, handleSubmit, reset, watch } = useForm({
+        defaultValues: defaultFormFields,
+        shouldUnregister: false,
     });
 
-    const { fields: receiptItemsFields, append: appendReceiptItem, remove: removeReceiptItem } = useFieldArray({
-        control,
-        name: "ReceiptData.receipt.items",
-    });
-    const { fields: payingAgentPhonesFields, append: appendPayingAgentPhoneField, remove: removePayingAgentPhoneField } = useFieldArray({
-        control,
-        name: "ReceiptData.receipt.agent_info.paying_agent.phones",
-    });
-    const { fields:receivePaymentsOperatorFields, append: appendReceivePaymentsOperatorField, remove: removeReceivePaymentsOperatorField } = useFieldArray({
-        control,
-        name: "ReceiptData.receipt.agent_info.receive_payments_operator.phones",
-    });
-    const { fields: moneyTransferPhonesFields, append: appendMoneyTransferField, remove: removeMoneyTransferField } = useFieldArray({
-        control,
-        name: "ReceiptData.receipt.agent_info.money_transfer_operator.phones",
-    })
-    const { fields: supplierInfoPhonesFields, append: appendSupplierInfoPhoneField, remove: removeSupplierInfoPhoneField } = useFieldArray({
-        control,
-        name: "ReceiptData.receipt.supplier_info.phones",
-    })
-    const { fields: paymentsFields, append: appendPaymentField, remove: removePaymentField } = useFieldArray({
-        control,
-        name: "ReceiptData.receipt.payments",
-    })
+    const paymentMethodField = watch("PaymentMethod")
+    let paymentFields = {};
 
-    const fieldArrayMap: Record<string, { fields: any[]; append: any; remove: any }> = {
-        "ReceiptData.receipt.items": { fields: receiptItemsFields, append: appendReceiptItem, remove: removeReceiptItem },
-        "ReceiptData.receipt.payments": { fields: paymentsFields, append: appendPaymentField, remove: removePaymentField },
-        "ReceiptData.receipt.agent_info.paying_agent.phones": { fields: payingAgentPhonesFields, append: appendPayingAgentPhoneField, remove: removePayingAgentPhoneField },
-        "ReceiptData.receipt.agent_info.receive_payments_operator.phones": { fields: receivePaymentsOperatorFields, append: appendReceivePaymentsOperatorField, remove: removeReceivePaymentsOperatorField },
-        "ReceiptData.receipt.agent_info.money_transfer_operator.phones": { fields: moneyTransferPhonesFields, append: appendMoneyTransferField, remove: removeMoneyTransferField },
-        "ReceiptData.receipt.supplier_info.phones": { fields: supplierInfoPhonesFields, append: appendSupplierInfoPhoneField, remove: removeSupplierInfoPhoneField },
-    };
+    const [formData, setFormData] = useState<CryptogramPayment | CryptogramRSAPayment | SberPayPayment
+        | TokenBasedPayment | ExternalFormPayment | QRCodePayment>(defaultFormFields);
+
+    const [transactionIdStatus, setTransactionIdStatus] =
+        useState<MultiStateTransactionInfo
+            | TransactionStateDeclined
+            | TransactionStateWaitFor3ds
+            | TransactionStateRedirect>(MockTransactionStatus);
+    const [orderIdStatus, setOrderIdStatus] = useState<MultiStateTransactionInfo
+        | TransactionStateDeclined
+        | TransactionStateWaitFor3ds
+        | TransactionStateRedirect>(MockTransactionStateWaitFor3ds);
+    const [publicPayResult, setPublicPayResult] = useState<PayResponse>(MockPayResponse);
+    const [cryptogramFields, setCryptogramFields] = useState<CryptogramValueProps>(emptyCryptogramValueData);
+
+    const [isGetTransactionIdButtonDisabled, setGetTransactionIdButtonDisabled] = useState(true);
+    const [isGetOrderIdButtonDisabled, setGetOrderIdButtonDisabled] = useState(true);
+    const [isCreatePaymentButtonDisabled, setCreatePaymentButtonDisabled] = useState(true);
 
     const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
+    const [menuVisible, setMenuVisible] = useState<{ [key: string]: boolean }>({}); // Для отображения меню
     const [selected, setSelected] = useState<{ [key: string]: string | number | boolean }>({});
-    const [activeSection, setActiveSection] = useState<string | null>(null); // Состояние для текущей активной секции
 
+    const toggleMenu = (key: string) => {
+        setMenuVisible((prev) => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    // Функция для переключения состояния секции (раскрыта или скрыта)
+    const toggleExpand = (key: string) => {
+        setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
+    };
 
     const handleSelect = (
         name: string,
         value: string | number | boolean,
         onChange: (value: string | number | boolean) => void
     ) => {
-        setSelected((prev) => ({ ...prev, [name]: value }));
+        setSelected((prev: any) => ({ ...prev, [name]: value }));
         onChange(value);
         toggleExpand(name);
     };
 
-    const toggleExpand = (key: string) => {
-        setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
-        setActiveSection(prev => prev === key ? null : key);
-    };
-    
-    const onSubmit = (data: CryptogramPayment) => {
-        console.log(data);
-    };
+    const generateUniqueKey = (fieldKey: string) => `section_${fieldKey}`;
 
 
-    const getDefaultValues = (name: string) => {
-        switch (name) {
-            case "ReceiptData.receipt.items":
-                return { name: '', price: '', quantity: '', sum: '', vat: { type: '', sum: '' }, agent_info: {}, supplier_info: {} }; // Возвращаем новый объект
-            case "ReceiptData.payments":
-                return { method: '', amount: '' };
-            case "ReceiptData.receipt.agent_info.paying_agent.phones":
-            case "ReceiptData.receipt.agent_info.receive_payments_operator.phones":
-            case "ReceiptData.receipt.agent_info.money_transfer_operator.phones":
-            case "ReceiptData.receipt.supplier_info.phones":
-                return '';
-            default:
-                return {};
+    const onSubmit = async (data: CryptogramPayment | CryptogramRSAPayment | SberPayPayment
+        | TokenBasedPayment | ExternalFormPayment | QRCodePayment) => {
+        setFormData(data);
+
+        const xRequestId = generateXRequestId();
+        const payHeader = {
+            X_SITE_ID: '21044',
+            X_REQUEST_ID: xRequestId,
+        }
+
+        const cryptogramValue: CryptogramValueProps = {
+            TransactionDetails: {
+                Amount: data.Amount,
+                Currency: data.Currency,
+            },
+            PaymentDetails: {
+                CardholderName: "Card Holder",
+                CardNumber: "4111111111111111",
+                CVC: "603",
+                ExpMonth: "04",
+                ExpYear: "44"
+            },
+            PaymentMethod: data.PaymentMethod,
+            MessageExpiration: Date.now() + 86400000,
+        }
+        setCryptogramFields(cryptogramValue);
+
+        const publicRSAKey="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQ0lqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FnOEFNSUlDQ2dLQ0FnRUFxbk56eXlwR1R6cENZeDlzMnh6RQpaQ3B4eVkyL2YrbWljb0drWW1rV0M5Szl2SlIvcEtUL0VOUThCT1hIRkFBYW5Mb05PNzVLcmJUQ3Z5Y2pXbkJGCnhYQlJZY2NWeGsxaVB0c0VKbkNlcThmYXMwa2dYMFgzLzFnTFdvbkhheVdTUUl5emFTMXMrWUdsNEJyd2s5c08KTTQyZlk0dkM1WGptU1YxUDNlN2pvNUN1d2hxL2ljUkxZbTg1MXBYRTRiZ3FZYS96NEsrbXhUcWJvdC94b3lhTQpxSmlIOS9EUnQveTc0Z2t6Q0VIRThGQ0M4TkJlVXZUckRWbnlSQ0dtSlpVTDh0QnhPd1N3Ty94M1lzZi9CNU9vCkVjbllWdjVSQmF1MDl4VmFGTFN5QkZiRUsvZnRDUktFeUNQbnpYS2FnbTQ3T2dROEIvTkdhQ0cxRmdVOUhJb2gKd093TmsycWY1NTRPR21Oa0E3MnZCR1E0RTZ4TldUSnFJQWhOTUJQTjFMZGdRNXZTamszTUVJRHQ3Y3FEZzhFRwpCNU0vVS9VT2lVU2tXWmFtR3pXOVZFbkJhRFdWZFpxVVpTc0d0aCtJM093NGRPUUxiZG4rdzljYlpHLzR2VmwvCmFKdTdlQlZ2WVhEL0o0TnIzMk5RZ1o2YzlpMCtNU3RwWFUxMlJ4bzhJK1hCNVpZUTkzNE5iVXJoeDBuMlJhQk0KbGtlSTFtbE1ncWI3ME9BRk5zaDUyNUFIL3k5OVpJTzhsR0RqVEpSdDlKZzdGNVFmUEVWekRIbXdxdy9FaFFjQwpjVG5QaGRLOE53NDJ3QldIVDhXYXg4Y1NxYTdwRytTM2JOYkZvUVJlU1dvK2pzV0JNOU1NemJvckNqYWE1UzRNCnNCV0UyN2FRSElVMU5sTGNqK0laUldzQ0F3RUFBUT09Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=";
+        const publicKey="04bd07d3547bd1f90ddbd985feaaec59420cabd082ff5215f34fd1c89c5d8562e8f5e97a5df87d7c99bc6f16a946319f61f9eb3ef7cf355d62469edb96c8bea09e\n";
+        let cryptogram = "";
+
+        switch (data.PaymentMethod) {
+            case PaymentMethod.CryptogramRSA: {
+                cryptogram = getCryptogramRSAValue(cryptogramValue, publicRSAKey);
+                break;
+            }
+            case PaymentMethod.Cryptogram: {
+                cryptogram = await getCryptogramECDHValue(cryptogramValue, publicKey);
+                break;
+            }
+            default: cryptogram = "";
+        }
+
+        if ((data.PaymentMethod === "Cryptogram" || data.PaymentMethod === "CryptogramRSA")) {
+            data.PaymentDetails.Value = cryptogram;
+        }
+
+        try {
+            const result = await paymentApi.publicPay(data, payHeader);
+            setPublicPayResult(result);
+            setGetOrderIdButtonDisabled(!result.OrderId);
+            setGetTransactionIdButtonDisabled(!result.TransactionId);
+        } catch (error) {
+            console.error(error);
         }
     };
 
-    const renderField = (field: FormField, depth: number = 0, parentName: string = '') => {
-        const { type, name, placeholder, key, options, subfields } = field;
+    const getTransactionIdStatus = async () => {
+        const transactionIdStatusHeader: GetStatusByTransactionIdHeader = {
+            X_SITE_ID: '21044',
+            X_REQUEST_ID: '',
+            X_REQUEST_SIGNATURE: "",
+        }
 
-        const fieldName = parentName ? `${parentName}.${name}` : name;
+        if (publicPayResult.TransactionId) {
+            transactionIdStatusHeader.X_REQUEST_ID = generateXRequestId();
+            signatureTransaction.xRequestId = transactionIdStatusHeader.X_REQUEST_ID;
+            signatureTransaction.xSiteId = transactionIdStatusHeader.X_SITE_ID;
+            signatureTransaction.url = `https://gw.payselection.com/transactions/${publicPayResult.TransactionId}`;
+            signatureTransaction.siteSecretKey = publicPayResult.TransactionSecretKey;
+            transactionIdStatusHeader.X_REQUEST_SIGNATURE = signatureGeneration(signatureTransaction);
 
-        switch (type) {
-            case FormFieldType.input: {
-                return (
+            try {
+                const result =
+                    await getStatusApi.getStatusByTransactionId(publicPayResult.TransactionId, transactionIdStatusHeader);
+                setTransactionIdStatus(result);
+            } catch (error) {
+                console.error(error);
+            }
+
+        }
+    }
+
+    const getOrderIdStatus = async () => {
+        const orderIdStatusHeader: GetStatusByOrderIdHeader = {
+            X_SITE_ID: '21044',
+            X_REQUEST_ID: '',
+            X_REQUEST_SIGNATURE: "",
+        }
+        signatureOrder.url = `https://gw.payselection.com/orders/${publicPayResult.OrderId}`;
+        signatureOrder.xRequestId = generateXRequestId();
+        signatureOrder.siteSecretKey = 'jdPnu3LKGnBqShN3';
+        orderIdStatusHeader.X_REQUEST_ID = signatureOrder.xRequestId;
+        orderIdStatusHeader.X_REQUEST_SIGNATURE = signatureGeneration(signatureOrder);
+
+        try {
+            const result =
+                await getStatusApi.getStatusByOrderId(publicPayResult.OrderId, orderIdStatusHeader);
+            setOrderIdStatus(result);
+        } catch(error) {
+            console.error(error);
+        }
+
+    }
+
+
+
+    const renderField = (field: Field, parentKey = '') => {
+        const fullKey = field.key;
+
+        if (field.fieldType === 'text' || field.fieldType === 'number') {
+            return (
+                <View style={styles.fieldContainer} key={fullKey}>
+                    <Text style={styles.label}>{field.name}</Text>
                     <Controller
-                        key={key}
                         control={control}
-                        name={fieldName as string}
-                        render={({ field: { onChange, value } }) => (
-                            <View style={{ marginBottom: 15 }}>
-                                <TextInput
-                                    placeholder={placeholder}
-                                    value={value?.toString()}
-                                    onChangeText={onChange}
-                                    style={{ borderWidth: 1, padding: 8 }}
-                                />
-                            </View>
+                        name={field.key}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <TextInput
+                                style={styles.input}
+                                onBlur={onBlur}
+                                onChangeText={onChange}
+                                value={value ?? ''}
+                                placeholder={field.placeholder}
+                                keyboardType={field.fieldType === 'number' ? 'numeric' : 'default'}
+                            />
                         )}
                     />
-                );
-            }
-            case FormFieldType.picker: {
-                return (
+                </View>
+            );
+        }
+
+        if (field.fieldType === 'picker') {
+            return (
+                <View style={styles.fieldContainer} key={fullKey}>
                     <Controller
-                        key={key}
                         control={control}
-                        name={fieldName as string}
+                        name={fullKey}
                         render={({ field: { onChange, value } }) => (
-                            <View style={styles.fieldContainer}>
-                                <Text style={styles.label}>{placeholder}</Text>
-                                <List.Accordion
-                                    title={selected[fieldName] || "Select an option"}
-                                    style={styles.dropdownContainer}
-                                    expanded={expanded[key]}
-                                    onPress={() => toggleExpand(key)}
-                                >
-                                    {options?.map((option: any) => (
-                                        <List.Item
-                                            key={option.value.toString()}
-                                            title={option.label}
-                                            onPress={() => handleSelect(fieldName, option.value, onChange)}
-                                        />
-                                    ))}
-                                </List.Accordion>
-                            </View>
-                        )}
-                    />
-                );
-            }
-            case FormFieldType.object: {
-                return (
-                    <View key={key} style={[styles.sectionContainer, { backgroundColor: getBackgroundColor(key, depth) }]}>
-                        <TouchableOpacity onPress={() => toggleExpand(key)}>
-                            <Text style={[styles.sectionTitle, expanded[key] ? styles.expandedTitle : styles.collapsedTitle]}>
-                                {placeholder} {expanded[key] ? '-' : '+'}
-                            </Text>
-                        </TouchableOpacity>
-
-                        {expanded[key] && (
-                            <View style={{ paddingLeft: 10 }}>
-                                {subfields?.map((subfield: any) => renderField(subfield, depth + 1, fieldName))}
-                            </View>
-                        )}
-                    </View>
-                );
-            }
-            case FormFieldType.array: {
-                const array = fieldArrayMap[name];
-                if (!array) return null;
-                const { fields, append, remove } = array;
-
-                return (
-                    <View key={key} style={[styles.sectionContainer, { backgroundColor: getBackgroundColor(key, depth) }]}>
-                        <TouchableOpacity onPress={() => toggleExpand(key)}>
-                            <Text style={[styles.sectionTitle, expanded[key] ? styles.expandedTitle : styles.collapsedTitle]}>
-                                {placeholder} {expanded[key] ? '-' : '+'}
-                            </Text>
-                        </TouchableOpacity>
-
-                        {expanded[key] && (
-                            <View style={{ paddingLeft: 10 }}>
-                                {fields.map((item, index) => (
-                                    <View key={item.id} style={styles.arrayItemContainer}>
-                                        {subfields?.map((subfield: any) =>
-                                            renderField(subfield, depth + 1, `${fieldName}.${index}`) // Корректное имя для каждого элемента массива
-                                        )}
-                                        <Button title="Remove" onPress={() => remove(index)} />
-                                    </View>
+                            <List.Accordion
+                                title={
+                                    value !== undefined
+                                        ? field.options?.find(option => option.value === value)?.label ||
+                                        value.toString()
+                                        : 'Please select'
+                                }
+                                expanded={expanded[fullKey] || false}
+                                onPress={() => toggleExpand(fullKey)}
+                            >
+                                {field.options?.map((option) => (
+                                    <List.Item
+                                        key={option.value.toString()}
+                                        title={option.label}
+                                        onPress={() => {
+                                            onChange(option.value);
+                                            toggleExpand(fullKey);
+                                        }}
+                                    />
                                 ))}
-                                <Button title={`Add ${placeholder}`} onPress={() => append(getDefaultValues(name))} />
-                            </View>
+                            </List.Accordion>
                         )}
-                    </View>
-                );
-            }
-            default:
-                return null;
+                    />
+                </View>
+            );
         }
-    };
 
-    // Оптимизированная функция для рендеринга полей
-    const getBackgroundColor = (key: string, depth: number) => {
-        const isExpanded = expanded[key];
-        const isActive = activeSection === key;
-        return isActive
-            ? `rgba(208, 193, 218, ${1 - depth * 0.2})`
-            : `rgba(208, 193, 218, ${0.5 - depth * 0.1})`;
-    };
+        if (field.fieldType === 'group') {
+            const uniqueKey = generateUniqueKey(fullKey);
+            return (
+                <View key={fullKey} style={styles.section}>
+                    <TouchableOpacity onPress={() => toggleExpand(uniqueKey)}>
+                        <Text style={styles.sectionTitle}>
+                            {field.name} {expanded[uniqueKey] ? '-' : '+'}
+                        </Text>
+                    </TouchableOpacity>
+                    <View style={expanded[uniqueKey] ? {} : { display: 'none' }}>
+                        {field.subfields?.map((subfield) => renderField(subfield, fullKey))}
+                    </View>
+                </View>
+            );
+        }
 
-    // Функция для получения имени родителя
-    const nameForParent = (fieldName: string) => {
-        return fieldName;
+        if (field.fieldType === 'array') {
+            const { fields: arrayFields, append, remove } = useFieldArray({ control, name: fullKey});
+            const uniqueKey = generateUniqueKey(fullKey);
+            return (
+                <View key={fullKey} style={styles.section}>
+                    <TouchableOpacity onPress={() => toggleExpand(uniqueKey)}>
+                        <Text style={styles.sectionTitle}>
+                            {field.name} {expanded[uniqueKey] ? '-' : '+'}
+                        </Text>
+                    </TouchableOpacity>
+                    <View style={expanded[uniqueKey] ? {} : { display: 'none' }}>
+                        {arrayFields.map((item, index) => (
+                            <View key={item.id} style={styles.arrayItem}>
+                                {field.subfields?.map((subfield) => renderField(subfield, ""))}
+                                <Button title="Remove" color="red" onPress={() => remove(index)} />
+                            </View>
+                        ))}
+                        <Button title="Add Item" onPress={() => append({})} />
+                    </View>
+                </View>
+            );
+        }
+
+        return null;
     };
 
     useEffect(() => {
         reset(defaultFormFields);
-    }, [defaultFormFields, reset]);
-    
-    return (
-        <View>
-            <View style={{ padding: 20 }}>
-                {paymentInfoList.map((field) => renderField(field))}
-            </View>
-            {/*
-             Динамическое управление items
-            <Text>Items</Text>
-            {itemsFields.map((item, index) => (
-                <View key={item.id}>
-                    <Controller
-                        control={control}
-                        name={`ReceiptData.items.${index}.name`}
-                        render={({ field: { onChange, value } }) => (
-                            <TextInput
-                                style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
-                                placeholder="Item Name"
-                                value={value}
-                                onChangeText={onChange}
-                            />
-                        )}
-                    />
-                    
-                     Поля для остальных свойств items (price, quantity и т.д.)
-                    <Controller
-                        control={control}
-                        name={`ReceiptData.items.${index}.price`}
-                        render={({ field: { onChange, value } }) => (
-                            <TextInput
-                                style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
-                                placeholder="Price"
-                                value={String(value)}
-                                onChangeText={onChange}
-                                keyboardType="numeric"
-                            />
-                        )}
-                    />
-                    
-                    <Button title="Remove Item" onPress={() => removeItem(index)} />
-                </View>
-            ))}
-            */}
-            {/*<Button title="Add Item" onPress={() => appendItem({ name: '', price: 0, quantity: 1 })} />*/}
-            
-            <Button title="Submit" onPress={handleSubmit(onSubmit)} />
-        </View>
-    );
-};
+        if (paymentMethodField) {
+            setCreatePaymentButtonDisabled(false);
+        }
+    }, [defaultFormFields, reset, paymentMethodField]);
 
-export default DynamicForm;
+    return (
+        <ScrollView style={styles.container}>
+            {defineFieldsList(defaultFormFields.PaymentMethod, fieldList).map((field: Field) => renderField(field, ""))}
+            <View style={styles.buttonContainer}>
+                <Pressable
+                    onPress={handleSubmit(onSubmit)}
+                    style={[styles.styledButton, isCreatePaymentButtonDisabled && { backgroundColor: Colors.secondaryText}]}
+                    disabled={isCreatePaymentButtonDisabled}
+                >
+                    <Text style={styles.buttonText}>Create payment</Text>
+                </Pressable>
+                <Pressable
+                    onPress={getTransactionIdStatus}
+                    style={[styles.styledButton, isGetTransactionIdButtonDisabled && { backgroundColor: Colors.secondaryText}]}
+                    disabled={!publicPayResult.TransactionId}
+                >
+                    <Text style={styles.buttonText}>Get status by TransactionID</Text>
+                </Pressable>
+                <Pressable
+                    onPress={getOrderIdStatus}
+                    style={[styles.styledButton, isGetOrderIdButtonDisabled && { backgroundColor: Colors.secondaryText}]}
+                    disabled={!publicPayResult.OrderId}
+                >
+                    <Text style={styles.buttonText}>Get status by OrderID</Text>
+                </Pressable>
+            </View>
+            {publicPayResult.TransactionSecretKey &&
+                <View>
+                    <Text style={{fontWeight: "bold", paddingVertical: 10, fontSize: 16}}>PaymentResult: </Text>
+                    {
+                        Object.entries(publicPayResult).map(([key, value]) => (
+                            <Text key={key}>{`${key}: ${value}`}</Text>
+                        ))
+                    }
+                </View>
+            }
+            {transactionIdStatus.TransactionState &&
+                <View>
+                    <Text style={{fontWeight: "bold", paddingVertical: 10, fontSize: 16}}>TransactionId Status: </Text>
+                    {
+                        Object.entries(transactionIdStatus).map(([key, value]) => (
+                            <Text key={key}>{`${key}: ${value}`}</Text>
+                        ))
+                    }
+                </View>
+            }
+            {orderIdStatus.OrderId &&
+                <View>
+                    <Text style={{fontWeight: "bold", paddingVertical: 10, fontSize: 16}}>OrderId Status: </Text>
+                    {
+                        Object.entries(orderIdStatus).map(([key, value]) => (
+                            <Text key={key}>{`${key}: ${value}`}</Text>
+                        ))
+                    }
+                </View>
+            }
+
+
+        </ScrollView>
+    );
+}
 
 const styles = StyleSheet.create({
-    inputWrapper: {
-        gap: 4,
-    },
-    inputContainer: {
-        marginBottom: 15,
-        padding: 10,
-        borderRadius: 5,
-    },
-    inputTittleWrapper: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    inputFiledStyles: {
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 10,
-    },
-    openedSectionWrapper: {
-        paddingVertical: 10,
-        paddingHorizontal: 10,
-        borderRadius: 8,
-        marginVertical: 20,
-        backgroundColor: Colors.section,
-    },
-    sectionContainer: {
-        marginBottom: 20,
-        padding: 10,
-        borderRadius: 5,
-        borderWidth: 2,
-    },
-    arrayItemContainer: {
-        marginBottom: 20,
-        padding: 10,
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: '#f0f0f0',
-    },
-    sectionTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 5,
-    },
-    expandedTitle: {
-        color: Colors.text,
-    },
-    collapsedTitle: {
-        color: Colors.text,
-    },
     container: {
-        padding: 20,
+        padding: 16,
     },
     fieldContainer: {
-        marginBottom: 15,
+        marginBottom: 16,
+        padding: 10,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        backgroundColor: '#f9f9f9',
     },
     label: {
         fontSize: 16,
         fontWeight: 'bold',
-        marginBottom: 5,
+        marginBottom: 8,
     },
-    output: {
-        marginTop: 20,
-        fontSize: 16,
+    input: {
+        borderWidth: 1,
+        borderColor: '#ddd',
+        padding: 8,
+        borderRadius: 4,
     },
-    dropdownContainer: {
+    section: {
+        marginVertical: 10,
+        padding: 10,
+        borderWidth: 1,
+        borderColor: '#aaa',
         borderRadius: 8,
-        backgroundColor: Colors.background,
-        height: 60,
-    }
-})
+        backgroundColor: '#f1f1f1',
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8,
+    },
+    fieldGroup: {
+        padding: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 8,
+        backgroundColor: '#fff',
+    },
+    arrayItem: {
+        marginBottom: 10,
+        padding: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 4,
+        backgroundColor: '#fff',
+    },
+    buttonContainer: {
+        flexDirection: "row",
+        gap: 10,
+        flexWrap: 'wrap',
+    },
+    styledButton: {
+        marginHorizontal: 20,
+        backgroundColor: Colors.buttonBackground,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        borderRadius: 8,
+        maxWidth: "20%",
+        justifyContent: "flex-start",
+    },
+    buttonText: {
+        textAlign: "center",
+    },
+});
+
+export default DynamicForm;
