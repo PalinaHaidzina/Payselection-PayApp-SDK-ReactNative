@@ -153,6 +153,8 @@ export const MockSberPaymentDataFFD1_05: SberPayPayment = {
     RebillFlag: false,
     CustomerInfo: {
         Email: "user@example.com",
+        ReceiptEmail: "user@example.com",
+        IsSendReceipt: true,
         Phone: "+19991231212",
         Language: "en",
         Address: "string",
@@ -281,6 +283,8 @@ export const MockCryptogramPaymentDataFFD1_2 = {
     CustomerInfo: {
         Email: "user@example.com",
         Phone: "+19991231212",
+        ReceiptEmail: "user@example.com",
+        IsSendReceipt: true,
         Language: "en",
         Address: "string",
         Town: "string",

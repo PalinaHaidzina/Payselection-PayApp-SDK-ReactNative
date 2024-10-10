@@ -99,7 +99,8 @@ export const fieldsFFD1_05: Field[] = [
                 name: "IsSendReceipt",
                 key: "CustomerInfo.IsSendReceipt",
                 placeholder: "Enter Is Send Receipt",
-                fieldType: "text",
+                fieldType: "picker",
+                options: booleanHandbook,
             },
             {
                 name: "Phone",
@@ -648,7 +649,8 @@ export const fieldsFFD1_05: Field[] = [
                                 name: "type",
                                 key: "ReceiptData.receipt.vats.type",
                                 placeholder: "Enter type",
-                                fieldType: "text",
+                                fieldType: "picker",
+                                options: VatTypeHandbook,
                             },
                             {
                                 name: "sum",
@@ -788,7 +790,8 @@ export const fieldsFFD1_02: Field[] = [
                 name: "IsSendReceipt",
                 key: "CustomerInfo.IsSendReceipt",
                 placeholder: "Enter Is Send Receipt",
-                fieldType: "text",
+                fieldType: "picker",
+                options: booleanHandbook,
             },
             {
                 name: "Phone",
@@ -1360,7 +1363,8 @@ export const fieldsFFD1_02: Field[] = [
                                 name: "type",
                                 key: "ReceiptData.receipt.vats.type",
                                 placeholder: "Enter type",
-                                fieldType: "text",
+                                fieldType: "picker",
+                                options: VatTypeHandbook,
                             },
                             {
                                 name: "sum",
