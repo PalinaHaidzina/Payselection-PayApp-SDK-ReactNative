@@ -10,7 +10,7 @@ import {
     ScrollView,
 } from 'react-native';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
-import {List, MD2Colors} from 'react-native-paper';
+import {List} from 'react-native-paper';
 import {Field} from "@/constants/fieldList";
 import {
     CryptogramPayment, CryptogramRSAPayment, ExternalFormPayment,
@@ -166,6 +166,10 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
             setPublicPayResult(result);
             setGetOrderIdButtonDisabled(!result?.OrderId);
             setGetTransactionIdButtonDisabled(!result?.TransactionId);
+            console.log("PUBLIC PAY");
+            console.log(`Pay header: ${JSON.stringify(payHeader)}`);
+            console.log(`Pay body: ${JSON.stringify(data)}`);
+            console.log(`Pay response:  ${JSON.stringify(result)}`);
         } catch (error) {
             console.error(error);
         }
@@ -189,6 +193,10 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
             try {
                 const result =
                     await getStatusApi.getStatusByTransactionId(publicPayResult.TransactionId, transactionIdStatusHeader);
+                console.log("\n\nGET STATUS BY TRANSACTION ID");
+                console.log(`Status by transaction id header: ${JSON.stringify(transactionIdStatusHeader)}`);
+                console.log(`Status by transaction id body: ${JSON.stringify(publicPayResult.TransactionId)}`);
+                console.log(`Status by transaction id response:  ${JSON.stringify(result)}`);
                 setTransactionIdStatus(result);
             } catch (error) {
                 console.error(error);
@@ -213,6 +221,10 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
             const result =
                 await getStatusApi.getStatusByOrderId(publicPayResult.OrderId, orderIdStatusHeader);
             setOrderIdRequestStatus("OK");
+            console.log("\n\nGET STATUS BY ORDER ID");
+            console.log(`Status by order id header: ${JSON.stringify(orderIdStatusHeader)}`);
+            console.log(`Status by order id body: ${JSON.stringify(publicPayResult.OrderId)}`);
+            console.log(`Status by order id response:  ${JSON.stringify(result)}`);
         } catch(error) {
             console.error(error);
             setOrderIdRequestStatus("ERROR");
