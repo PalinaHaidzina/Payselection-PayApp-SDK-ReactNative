@@ -13,6 +13,8 @@ export const defaultPaymentPayloadValues = {
     RebillFlag: false,
     CustomerInfo: {
         Email: "user@example.com",
+        ReceiptEmail: "user@example.com",
+        IsSendReceipt: true,
         Phone: "+19991231212",
         Language: "en",
         Address: "string",

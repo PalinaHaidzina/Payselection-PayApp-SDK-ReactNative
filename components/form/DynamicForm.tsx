@@ -256,6 +256,7 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
         if (field.fieldType === 'picker') {
             return (
                 <View style={styles.fieldContainer} key={fullKey}>
+                    <Text style={styles.dropdownTitle}>{field.name}</Text>
                     <Controller
                         control={control}
                         name={fullKey}
@@ -397,6 +398,11 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
 const styles = StyleSheet.create({
     container: {
         padding: 16,
+    },
+    dropdownTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 5,
     },
     fieldContainer: {
         marginBottom: 16,
