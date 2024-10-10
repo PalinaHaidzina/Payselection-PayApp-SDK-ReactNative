@@ -1,12 +1,20 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Pressable, ScrollView} from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    Button,
+    StyleSheet,
+    TouchableOpacity,
+    Pressable,
+    ScrollView,
+} from 'react-native';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
-import {defaultPaymentPayloadValues} from "@/constants/formFielsLists/formDefaultValues";
-import {List} from 'react-native-paper';
+import {List, MD2Colors} from 'react-native-paper';
 import {Field} from "@/constants/fieldList";
 import {
     CryptogramPayment, CryptogramRSAPayment, ExternalFormPayment,
-    PublicPayPayloadBase, QRCodePayment, SberPayPayment, TokenBasedPayment
+    QRCodePayment, SberPayPayment, TokenBasedPayment
 } from "payselection-pay-app-sdk-reactnative/src/types/payment/paymentPayload";
 import {signatureGeneration, SignatureProps} from "payselection-pay-app-sdk-reactnative/src/utils/common";
 import {
@@ -21,18 +29,19 @@ import {
 } from "@/constants/mockData";
 import {PayResponse} from "payselection-pay-app-sdk-reactnative/src/types/payment/paymentResponse";
 import {
-    CryptogramValueProps, getCryptogramECDHValue,
-    getCryptogramRSAValue
+    CryptogramValueProps,
+    getCryptogramRSAValue,
+    getCryptogramECDHValue
 } from "payselection-pay-app-sdk-reactnative/src/types/payment/cryptoUtils";
 import {defineFieldsList, generateXRequestId} from "@/common/utils";
 import {PaymentMethod} from "@/types/types";
-import paymentApi from "payselection-pay-app-sdk-reactnative/src/api/payment";
 import {
     GetStatusByOrderIdHeader,
     GetStatusByTransactionIdHeader
 } from "payselection-pay-app-sdk-reactnative/src/types/status/statusPayload";
 import getStatusApi from "payselection-pay-app-sdk-reactnative/src/api/status";
 import {Colors} from "@/constants/Colors";
+import paymentApi from "payselection-pay-app-sdk-reactnative/src/api/payment";
 
 interface DynamicFormProps {
     defaultFormFields: any;
@@ -62,8 +71,6 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
     });
 
     const paymentMethodField = watch("PaymentMethod")
-    let paymentFields = {};
-
     const [formData, setFormData] = useState<CryptogramPayment | CryptogramRSAPayment | SberPayPayment
         | TokenBasedPayment | ExternalFormPayment | QRCodePayment>(defaultFormFields);
 
@@ -72,6 +79,7 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
             | TransactionStateDeclined
             | TransactionStateWaitFor3ds
             | TransactionStateRedirect>(MockTransactionStatus);
+    const [orderIdRequestStatus, setOrderIdRequestStatus] = useState("");
     const [orderIdStatus, setOrderIdStatus] = useState<MultiStateTransactionInfo
         | TransactionStateDeclined
         | TransactionStateWaitFor3ds
@@ -91,23 +99,15 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
         setMenuVisible((prev) => ({ ...prev, [key]: !prev[key] }));
     };
 
-    // Функция для переключения состояния секции (раскрыта или скрыта)
     const toggleExpand = (key: string) => {
         setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
     };
 
-    const handleSelect = (
-        name: string,
-        value: string | number | boolean,
-        onChange: (value: string | number | boolean) => void
-    ) => {
-        setSelected((prev: any) => ({ ...prev, [name]: value }));
-        onChange(value);
-        toggleExpand(name);
-    };
-
     const generateUniqueKey = (fieldKey: string) => `section_${fieldKey}`;
 
+    const formatStringToArray = (value: string): string[] => {
+        return value.split(',').map((item) => item.trim()).filter((item) => item);
+    };
 
     const onSubmit = async (data: CryptogramPayment | CryptogramRSAPayment | SberPayPayment
         | TokenBasedPayment | ExternalFormPayment | QRCodePayment) => {
@@ -143,10 +143,15 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
         switch (data.PaymentMethod) {
             case PaymentMethod.CryptogramRSA: {
                 cryptogram = getCryptogramRSAValue(cryptogramValue, publicRSAKey);
-                break;
+               break;
             }
             case PaymentMethod.Cryptogram: {
-                cryptogram = await getCryptogramECDHValue(cryptogramValue, publicKey);
+                try {
+                    cryptogram = await getCryptogramECDHValue(cryptogramValue, publicKey);
+                    break;
+                } catch (error) {
+                    console.error(error);
+                }
                 break;
             }
             default: cryptogram = "";
@@ -159,8 +164,8 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
         try {
             const result = await paymentApi.publicPay(data, payHeader);
             setPublicPayResult(result);
-            setGetOrderIdButtonDisabled(!result.OrderId);
-            setGetTransactionIdButtonDisabled(!result.TransactionId);
+            setGetOrderIdButtonDisabled(!result?.OrderId);
+            setGetTransactionIdButtonDisabled(!result?.TransactionId);
         } catch (error) {
             console.error(error);
         }
@@ -207,9 +212,10 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
         try {
             const result =
                 await getStatusApi.getStatusByOrderId(publicPayResult.OrderId, orderIdStatusHeader);
-            setOrderIdStatus(result);
+            setOrderIdRequestStatus("OK");
         } catch(error) {
             console.error(error);
+            setOrderIdRequestStatus("ERROR");
         }
 
     }
@@ -230,7 +236,13 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
                             <TextInput
                                 style={styles.input}
                                 onBlur={onBlur}
-                                onChangeText={onChange}
+                                onChangeText={(text) => {
+                                    if (field.isMulti) {
+                                        onChange(formatStringToArray(text));
+                                    } else {
+                                        onChange(text);
+                                    }
+                                }}
                                 value={value ?? ''}
                                 placeholder={field.placeholder}
                                 keyboardType={field.fieldType === 'number' ? 'numeric' : 'default'}
@@ -338,19 +350,19 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
                 <Pressable
                     onPress={getTransactionIdStatus}
                     style={[styles.styledButton, isGetTransactionIdButtonDisabled && { backgroundColor: Colors.secondaryText}]}
-                    disabled={!publicPayResult.TransactionId}
+                    disabled={!publicPayResult?.TransactionId}
                 >
                     <Text style={styles.buttonText}>Get status by TransactionID</Text>
                 </Pressable>
                 <Pressable
                     onPress={getOrderIdStatus}
                     style={[styles.styledButton, isGetOrderIdButtonDisabled && { backgroundColor: Colors.secondaryText}]}
-                    disabled={!publicPayResult.OrderId}
+                    disabled={!publicPayResult?.OrderId}
                 >
                     <Text style={styles.buttonText}>Get status by OrderID</Text>
                 </Pressable>
             </View>
-            {publicPayResult.TransactionSecretKey &&
+            {publicPayResult?.TransactionSecretKey &&
                 <View>
                     <Text style={{fontWeight: "bold", paddingVertical: 10, fontSize: 16}}>PaymentResult: </Text>
                     {
@@ -360,7 +372,7 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
                     }
                 </View>
             }
-            {transactionIdStatus.TransactionState &&
+            {transactionIdStatus?.TransactionState &&
                 <View>
                     <Text style={{fontWeight: "bold", paddingVertical: 10, fontSize: 16}}>TransactionId Status: </Text>
                     {
@@ -370,14 +382,10 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
                     }
                 </View>
             }
-            {orderIdStatus.OrderId &&
+            {orderIdRequestStatus &&
                 <View>
-                    <Text style={{fontWeight: "bold", paddingVertical: 10, fontSize: 16}}>OrderId Status: </Text>
-                    {
-                        Object.entries(orderIdStatus).map(([key, value]) => (
-                            <Text key={key}>{`${key}: ${value}`}</Text>
-                        ))
-                    }
+                    <Text style={{fontWeight: "bold", paddingVertical: 10, fontSize: 16}}>OrderId request Status: </Text>
+                    <Text>{orderIdRequestStatus}</Text>
                 </View>
             }
 

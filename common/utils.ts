@@ -19,7 +19,6 @@ export const getDefaultValues = (name: string) => {
 
 export function defineFieldsList (paymentMethod: PaymentMethod, fieldsList: Field[]) {
     if (paymentMethod === PaymentMethod.Token) {
-        console.log("fields.filter(item => item.key !== PaymentDetails.Value: ", fields.filter(item => item.key !== "PaymentDetails.Value"));
         return fieldsList.filter(item => item.key !== "PaymentDetails.Value");
     }
     if (paymentMethod !== PaymentMethod.CryptogramRSA && paymentMethod !== PaymentMethod.Cryptogram) {

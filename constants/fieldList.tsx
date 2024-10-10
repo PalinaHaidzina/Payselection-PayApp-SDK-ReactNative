@@ -1,7 +1,7 @@
 import {
     AgentInfoTypeHandbook,
     booleanHandbook,
-    PaymentMethodTypeHandbook, PaymentObjectFFD1_05, PaymentObjectFFD1_2, PaymentObjectFFD1_2Handbook,
+    PaymentMethodTypeHandbook, PaymentObjectFFD1_05, PaymentObjectFFD1_2Handbook,
     SnoHandbook, VatTypeHandbook
 } from "@/constants/formFielsLists/handbook";
 
@@ -9,9 +9,10 @@ export interface Field {
     name: string;
     key: string;
     placeholder?: string;
-    fieldType: string;  // "text", "number", "group", "array", "select" и т.д.
-    subfields?: Field[]; // Для вложенных полей
-    options?: { label: string; value: string | number | boolean }[]; // Опции для picker полей
+    fieldType: string;
+    subfields?: Field[];
+    options?: { label: string; value: string | number | boolean }[];
+    isMulti?: boolean;
 }
 
 export const fieldsFFD1_05: Field[] = [
@@ -343,7 +344,8 @@ export const fieldsFFD1_05: Field[] = [
                                         name: "phones",
                                         key: "ReceiptData.receipt.agent_info.paying_agent.phones",
                                         placeholder: "Enter phones",
-                                        fieldType: "text", //multiple
+                                        fieldType: "text",
+                                        isMulti: true,
                                     },
                                 ],
                             },
@@ -356,7 +358,8 @@ export const fieldsFFD1_05: Field[] = [
                                         name: "phones",
                                         key: "ReceiptData.receipt.agent_info.receive_payments_operator.phones",
                                         placeholder: "Enter phones",
-                                        fieldType: "text", //multiple
+                                        fieldType: "text",
+                                        isMulti: true,
                                     },
                                 ],
                             },
@@ -369,7 +372,8 @@ export const fieldsFFD1_05: Field[] = [
                                         name: "phones",
                                         key: "ReceiptData.receipt.agent_info.money_transfer_operator.phones",
                                         placeholder: "Enter phones",
-                                        fieldType: "text", //multiple
+                                        fieldType: "text",
+                                        isMulti: true,
                                     },
                                     {
                                         name: "name",
@@ -402,7 +406,8 @@ export const fieldsFFD1_05: Field[] = [
                                 name: "phones",
                                 key: "ReceiptData.receipt.supplier_info.phones",
                                 placeholder: "Enter phones",
-                                fieldType: "text", //multiple
+                                fieldType: "text",
+                                isMulti: true,
                             },
                         ]
                     },
@@ -511,7 +516,8 @@ export const fieldsFFD1_05: Field[] = [
                                                 name: "phones",
                                                 key: "ReceiptData.receipt.items.agent_info.paying_agent.phones",
                                                 placeholder: "Enter phones",
-                                                fieldType: "text", //multiply
+                                                fieldType: "text",
+                                                isMulti: true,
                                             },
                                         ]
                                     },
@@ -524,7 +530,8 @@ export const fieldsFFD1_05: Field[] = [
                                                 name: "phones",
                                                 key: "ReceiptData.receipt.items.agent_info.paying_agent.receive_payments_operator.phones",
                                                 placeholder: "Enter phones",
-                                                fieldType: "text", //multiply
+                                                fieldType: "text",
+                                                isMulti: true,
                                             },
                                         ]
                                     },
@@ -537,7 +544,8 @@ export const fieldsFFD1_05: Field[] = [
                                                 name: "phones",
                                                 key: "ReceiptData.receipt.items.agent_info.paying_agent.money_transfer_operator.phones",
                                                 placeholder: "Enter phones",
-                                                fieldType: "text", //multiply
+                                                fieldType: "text",
+                                                isMulti: true,
                                             },
                                             {
                                                 name: "name",
@@ -1095,7 +1103,8 @@ export const fieldsFFD1_02: Field[] = [
                                                 name: "phones",
                                                 key: "ReceiptData.receipt.items.agent_info.paying_agent.phones",
                                                 placeholder: "Enter phones",
-                                                fieldType: "text", //multiply
+                                                fieldType: "text",
+                                                isMulti: true,
                                             },
                                         ]
                                     },
@@ -1108,7 +1117,8 @@ export const fieldsFFD1_02: Field[] = [
                                                 name: "phones",
                                                 key: "ReceiptData.receipt.items.agent_info.paying_agent.receive_payments_operator.phones",
                                                 placeholder: "Enter phones",
-                                                fieldType: "text", //multiply
+                                                fieldType: "text",
+                                                isMulti: true,
                                             },
                                         ]
                                     },
@@ -1121,7 +1131,8 @@ export const fieldsFFD1_02: Field[] = [
                                                 name: "phones",
                                                 key: "ReceiptData.receipt.items.agent_info.paying_agent.money_transfer_operator.phones",
                                                 placeholder: "Enter phones",
-                                                fieldType: "text", //multiply
+                                                fieldType: "text",
+                                                isMulti: true,
                                             },
                                             {
                                                 name: "name",
@@ -1154,7 +1165,8 @@ export const fieldsFFD1_02: Field[] = [
                                         name: "phones",
                                         key: "ReceiptData.receipt.items.supplier_info.phones",
                                         placeholder: "Enter phones",
-                                        fieldType: "text", //multiply
+                                        fieldType: "text",
+                                        isMulti: true,
                                     },
                                     {
                                         name: "name",
