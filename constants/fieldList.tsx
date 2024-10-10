@@ -466,8 +466,7 @@ export const fieldsFFD1_05: Field[] = [
                                 name: "nomenclature_code",
                                 key: "ReceiptData.receipt.items.nomenclature_code",
                                 placeholder: "Enter nomenclature code",
-                                fieldType: "picker",
-                                options: PaymentObjectFFD1_05,
+                                fieldType: "text",
                             },
                             {
                                 name: "vat",
