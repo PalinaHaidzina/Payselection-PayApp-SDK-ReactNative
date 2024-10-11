@@ -110,12 +110,12 @@ export const defaultPaymentPayloadValues = {
                     },
                     user_data: "additional_requesite",
                     excise: 12345678.12,
-                    country_code: "44",
+                    country_code: "375",
                     declaration_number: "1212",
                 }
             ],
             payments: [{
-                type: "cash",
+                type: 0,
                 sum: 99999999.99,
             }],
             vats: [{

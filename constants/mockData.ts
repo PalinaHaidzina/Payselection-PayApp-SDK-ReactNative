@@ -359,7 +359,7 @@ export const MockCryptogramPaymentDataFFD1_2 = {
                     },
                     user_data: "string",
                     excise: 0,
-                    country_code: "str",
+                    country_code: "375",
                     declaration_number: "string",
                     mark_quantity: {
                         numerator: 2,

@@ -251,6 +251,8 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
                                 onChangeText={(text) => {
                                     if (field.isMulti) {
                                         onChange(formatStringToArray(text));
+                                    } else if (field.isNumeric) {
+                                        onChange(text ? Number(text) : '');
                                     } else {
                                         onChange(text);
                                     }

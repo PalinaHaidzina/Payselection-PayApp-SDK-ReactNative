@@ -16,6 +16,7 @@ export interface Field {
     subfields?: Field[];
     options?: { label: string; value: string | number | boolean }[];
     isMulti?: boolean;
+    isNumeric?: boolean;
 }
 
 export const fieldsFFD1_05: Field[] = [
@@ -431,18 +432,21 @@ export const fieldsFFD1_05: Field[] = [
                                 key: "ReceiptData.receipt.items.price",
                                 placeholder: "Enter price",
                                 fieldType: "text",
+                                isNumeric: true,
                             },
                             {
                                 name: "quantity",
                                 key: "ReceiptData.receipt.items.quantity",
                                 placeholder: "Enter quantity",
                                 fieldType: "text",
+                                isNumeric: true,
                             },
                             {
                                 name: "sum",
                                 key: "ReceiptData.receipt.items.sum",
                                 placeholder: "Enter sum",
                                 fieldType: "text",
+                                isNumeric: true,
                             },
                             {
                                 name: "measurement_unit",
@@ -489,6 +493,7 @@ export const fieldsFFD1_05: Field[] = [
                                         key: "ReceiptData.receipt.items.vat.sum",
                                         placeholder: "Enter sum",
                                         fieldType: "text",
+                                        isNumeric: true,
                                     },
                                 ]
                             },
@@ -608,6 +613,7 @@ export const fieldsFFD1_05: Field[] = [
                                 key: "ReceiptData.receipt.items.excise",
                                 placeholder: "Enter excise",
                                 fieldType: "text",
+                                isNumeric: true,
                             },
                             {
                                 name: "country_code",
@@ -620,6 +626,7 @@ export const fieldsFFD1_05: Field[] = [
                                 key: "ReceiptData.receipt.items.declaration_number",
                                 placeholder: "Enter declaration_number",
                                 fieldType: "text",
+                                isNumeric: true,
                             },
                         ]
                     },
@@ -633,12 +640,14 @@ export const fieldsFFD1_05: Field[] = [
                                 key: "ReceiptData.receipt.payments.type",
                                 placeholder: "Enter type",
                                 fieldType: "text",
+                                isNumeric: true,
                             },
                             {
                                 name: "sum",
                                 key: "ReceiptData.receipt.payments.sum",
                                 placeholder: "Enter sum",
                                 fieldType: "text",
+                                isNumeric: true,
                             }
                         ],
                     },
@@ -659,6 +668,7 @@ export const fieldsFFD1_05: Field[] = [
                                 key: "ReceiptData.receipt.vats.sum",
                                 placeholder: "Enter sum",
                                 fieldType: "text",
+                                isNumeric: true,
                             }
                         ],
                     },
@@ -667,6 +677,7 @@ export const fieldsFFD1_05: Field[] = [
                         key: "ReceiptData.receipt.total",
                         placeholder: "Enter total",
                         fieldType: "text",
+                        isNumeric: true,
                     },
                     {
                         name: "additional_check_props",
@@ -1020,18 +1031,21 @@ export const fieldsFFD1_02: Field[] = [
                                 key: "ReceiptData.receipt.items.name",
                                 placeholder: "Enter name",
                                 fieldType: "text",
+                                isNumeric: true,
                             },
                             {
                                 name: "price",
                                 key: "ReceiptData.receipt.items.price",
                                 placeholder: "Enter price",
                                 fieldType: "text",
+                                isNumeric: true,
                             },
                             {
                                 name: "quantity",
                                 key: "ReceiptData.receipt.items.quantity",
                                 placeholder: "Enter quantity",
                                 fieldType: "text",
+                                isNumeric: true,
                             },
                             {
                                 name: "sum",
@@ -1057,6 +1071,7 @@ export const fieldsFFD1_02: Field[] = [
                                 key: "ReceiptData.receipt.items.payment_object",
                                 placeholder: "Enter payment object",
                                 fieldType: "picker",
+                                isNumeric: true,
                                 options: PaymentObjectFFD1_2Handbook,
                             },
                             {
@@ -1077,6 +1092,7 @@ export const fieldsFFD1_02: Field[] = [
                                         key: "ReceiptData.receipt.items.vat.sum",
                                         placeholder: "Enter sum",
                                         fieldType: "text",
+                                        isNumeric: true,
                                     },
                                 ]
                             },
@@ -1197,6 +1213,7 @@ export const fieldsFFD1_02: Field[] = [
                                 key: "ReceiptData.receipt.items.excise",
                                 placeholder: "Enter excise",
                                 fieldType: "text",
+                                isNumeric: true,
                             },
                             {
                                 name: "country_code",
@@ -1347,12 +1364,14 @@ export const fieldsFFD1_02: Field[] = [
                                 placeholder: "Enter type",
                                 fieldType: "picker",
                                 options: PaymentsTypeHandbook,
+                                isNumeric: true,
                             },
                             {
                                 name: "sum",
                                 key: "ReceiptData.receipt.payments.sum",
                                 placeholder: "Enter sum",
                                 fieldType: "text",
+                                isNumeric: true,
                             }
                         ],
                     },
@@ -1373,6 +1392,7 @@ export const fieldsFFD1_02: Field[] = [
                                 key: "ReceiptData.receipt.vats.sum",
                                 placeholder: "Enter sum",
                                 fieldType: "text",
+                                isNumeric: true,
                             }
                         ],
                     },
@@ -1413,6 +1433,62 @@ export const fieldsFFD1_02: Field[] = [
                             },
                         ]
                     },
+                    {
+                        name: "operating_check_props",
+                        key: "ReceiptData.receipt.operating_check_props",
+                        fieldType: "group",
+                        subfields: [
+                            {
+                                name: "name",
+                                key: "ReceiptData.receipt.operating_check_props.name",
+                                placeholder: "Enter name",
+                                fieldType: "text"
+                            },
+                            {
+                                name: "value",
+                                key: "ReceiptData.receipt.operating_check_props.value",
+                                placeholder: "Enter value",
+                                fieldType: "text"
+                            },
+                            {
+                                name: "timestamp",
+                                key: "ReceiptData.receipt.operating_check_props.timestamp",
+                                placeholder: "Enter timestamp",
+                                fieldType: "text"
+                            }
+                        ]
+                    },
+                    {
+                        name: "sectoral_check_props",
+                        key: "ReceiptData.receipt.sectoral_check_props",
+                        fieldType: "array",
+                        subfields: [
+                            {
+                                name: "federal_id",
+                                key: "ReceiptData.receipt.sectoral_check_props.federal_id",
+                                placeholder: "Enter federal_id",
+                                fieldType: "text"
+                            },
+                            {
+                                name: "date",
+                                key: "ReceiptData.receipt.operating_check_props.date",
+                                placeholder: "Enter date",
+                                fieldType: "text"
+                            },
+                            {
+                                name: "number",
+                                key: "ReceiptData.receipt.operating_check_props.number",
+                                placeholder: "Enter number",
+                                fieldType: "text"
+                            },
+                            {
+                                name: "value",
+                                key: "ReceiptData.receipt.operating_check_props.value",
+                                placeholder: "Enter value",
+                                fieldType: "text"
+                            }
+                        ]
+                    }
                 ]
 
             },
