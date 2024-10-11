@@ -1,8 +1,11 @@
 import {
     AgentInfoTypeHandbook,
     booleanHandbook,
-    PaymentMethodTypeHandbook, PaymentObjectFFD1_05, PaymentObjectFFD1_2Handbook,
-    SnoHandbook, VatTypeHandbook
+    PaymentMethodTypeHandbook,
+    PaymentObjectFFD1_05,
+    PaymentObjectFFD1_2Handbook, PaymentsTypeHandbook,
+    SnoHandbook,
+    VatTypeHandbook
 } from "@/constants/formFielsLists/handbook";
 
 export interface Field {
@@ -680,8 +683,7 @@ export const fieldsFFD1_05: Field[] = [
                     {
                         name: "additional_user_props",
                         key: "ReceiptData.receipt.additional_user_props",
-                        placeholder: "Enter additional_user_props",
-                        fieldType: "array",
+                        fieldType: "group",
                         subfields: [
                             {
                                 name: "name",
@@ -1343,7 +1345,8 @@ export const fieldsFFD1_02: Field[] = [
                                 name: "type",
                                 key: "ReceiptData.receipt.payments.type",
                                 placeholder: "Enter type",
-                                fieldType: "text",
+                                fieldType: "picker",
+                                options: PaymentsTypeHandbook,
                             },
                             {
                                 name: "sum",
@@ -1394,8 +1397,7 @@ export const fieldsFFD1_02: Field[] = [
                     {
                         name: "additional_user_props",
                         key: "ReceiptData.receipt.additional_user_props",
-                        placeholder: "Enter additional_user_props",
-                        fieldType: "array",
+                        fieldType: "group",
                         subfields: [
                             {
                                 name: "name",

@@ -317,8 +317,9 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
         }
 
         if (field.fieldType === 'array') {
-            const { fields: arrayFields, append, remove } = useFieldArray({ control, name: fullKey});
+            const { fields: arrayFields, append, remove } = useFieldArray({ control, name: fullKey });
             const uniqueKey = generateUniqueKey(fullKey);
+
             return (
                 <View key={fullKey} style={styles.section}>
                     <TouchableOpacity onPress={() => toggleExpand(uniqueKey)}>
@@ -329,7 +330,12 @@ const DynamicForm = ({ defaultFormFields, fieldList }: DynamicFormProps) => {
                     <View style={expanded[uniqueKey] ? {} : { display: 'none' }}>
                         {arrayFields.map((item, index) => (
                             <View key={item.id} style={styles.arrayItem}>
-                                {field.subfields?.map((subfield) => renderField(subfield, ""))}
+                                {field.subfields?.map((subfield) => (
+                                    renderField(
+                                        { ...subfield, key: `${fullKey}[${index}].${subfield.key.split('.').pop()}` },
+                                        fullKey
+                                    )
+                                ))}
                                 <Button title="Remove" color="red" onPress={() => remove(index)} />
                             </View>
                         ))}
