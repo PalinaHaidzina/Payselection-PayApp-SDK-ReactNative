@@ -1051,12 +1051,14 @@ export const fieldsFFD1_02: Field[] = [
                                 key: "ReceiptData.receipt.items.sum",
                                 placeholder: "Enter sum",
                                 fieldType: "text",
+                                isNumeric: true,
                             },
                             {
                                 name: "measure",
                                 key: "ReceiptData.receipt.items.measure",
                                 placeholder: "Enter measure",
                                 fieldType: "text",
+                                isNumeric: true,
                             },
                             {
                                 name: "payment_method",
@@ -1400,6 +1402,7 @@ export const fieldsFFD1_02: Field[] = [
                         key: "ReceiptData.receipt.total",
                         placeholder: "Enter total",
                         fieldType: "text",
+                        isNumeric: true,
                     },
                     {
                         name: "additional_check_props",
