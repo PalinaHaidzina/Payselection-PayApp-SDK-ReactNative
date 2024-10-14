@@ -1031,7 +1031,6 @@ export const fieldsFFD1_02: Field[] = [
                                 key: "ReceiptData.receipt.items.name",
                                 placeholder: "Enter name",
                                 fieldType: "text",
-                                isNumeric: true,
                             },
                             {
                                 name: "price",
