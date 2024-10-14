@@ -308,109 +308,109 @@ export const MockCryptogramPaymentDataFFD1_2 = {
         javaScriptEnabled: true
     },
     ReceiptData: {
-        timestamp: "string",
+        timestamp: "20.08.2024 15:20:00",
         external_id: "string",
         receipt: {
             client: {
-                name: "string",
-                inn: "string",
-                email: "string",
-                phone: "string"
+                name: "name",
+                inn: "1234567890",
+                email: "your@test.email",
+                phone: "+7000000000"
             },
             company: {
-                email: "string",
-                sno: TaxSystem.osn,
-                inn: "string",
-                payment_address: "string",
+                email: "your@test.email",
+                sno: "osn",
+                inn: "7723517121",
+                payment_address: "https://site.ru/",
             },
             items: [
                 {
-                    name: "string",
-                    price: 42949673,
-                    quantity: 99999.999,
-                    sum: 42949672.95,
-                    measure: 0,
-                    payment_method: PaymentMethodType.full_payment,
-                    payment_object: PaymentObjectFFD1_2.pawn,
+                    name: "test_01",
+                    price: 10,
+                    quantity: 2,
+                    sum: 1,
+                    measure: 83,
+                    payment_method: "full_payment",
+                    payment_object: 9,
                     vat: {
-                        type: VatType.vat10,
+                        type: "vat10",
                         sum: 99999999.99,
                     },
                     agent_info: {
-                        type: AgentInfoType.bank_paying_agent,
+                        type: "bank_paying_agent",
                         paying_agent: {
-                            operation: "string",
-                            phones: ["+375441238751"]
+                            operation: "test",
+                            phones: ["+375441238751", "+375441238751"]
                         },
                         receive_payments_operator: {
-                            phones: ["+375441238752"]
+                            phones: ["+375441238752", "+375441238752"]
                         },
                         money_transfer_operator: {
-                            phones: ["+375441238734"],
-                            name: "string",
-                            address: "string",
-                            inn: "string",
+                            phones: ["+375441238734", "+375441238734"],
+                            name: "test",
+                            address: "test",
+                            inn: "123456789012",
                         },
                     },
                     supplier_info: {
-                        phones: ["+375441238731"],
-                        name: "string",
-                        inn: "string",
+                        phones: ["+375441238731", "+375441238731"],
+                        name: "name",
+                        inn: "0000000000",
                     },
-                    user_data: "string",
-                    excise: 0,
-                    country_code: "375",
-                    declaration_number: "string",
+                    user_data: "additional_requesite",
+                    excise: 12345678.12,
+                    country_code: "440",
+                    declaration_number: "1212",
                     mark_quantity: {
-                        numerator: 2,
+                        numerator: 1,
                         denominator: 2
                     },
-                    mark_processing_mode: "string",
+                    mark_processing_mode: "0",
                     sectoral_item_props: [{
-                        federal_id: "string",
-                        date: "string",
-                        number: "string",
-                        value: "string"
+                        federal_id: "072",
+                        date: "20.08.2024",
+                        number: "1",
+                        value: "2",
                     }],
                     mark_code: {
-                        unknown: "string",
-                        ean: "string",
-                        ean13: "string",
-                        itf14: "string",
-                        gs10: "string",
-                        gs1m: "string",
-                        short: "string",
-                        fur: "string",
-                        egais20: "string",
-                        egais30: "string",
+                        unknown: "test item code",
+                        ean: "95050003",
+                        ean13: "8901072002478",
+                        itf14: "89010720024780",
+                        gs10: "19501101530000",
+                        gs1m: "MTk1MDExMDE1MzAwMDA=",
+                        short: "test",
+                        fur: "CC-345789-ABCDEFGHIJ",
+                        egais20: "test0000000000000000000",
+                        egais30: "test0000000000",
                     }
                 }
             ],
             payments: [{
-                type: PaymentsType.cash,
+                type: 0,
                 sum: 99999999.99,
             }],
             vats: [{
-                type: VatType.vat0,
+                type: "vat0",
                 sum: 99999999.99,
             }],
             total: 99999999.99,
-            additional_check_props: "string",
-            cashier: "string",
+            additional_check_props: "test_additional",
+            cashier: "any_name",
             additional_user_props: {
-                name: "string",
-                value: "string"
+                name: "test_test_test",
+                value: "test_03"
             },
             operating_check_props: {
-                name: "string",
-                value: "string",
-                timestamp: "string",
+                name: "0",
+                value: "test_04",
+                timestamp: "20.08.2024 16:10:01",
             },
             sectoral_check_props: [{
-                federal_id: "string",
-                date: "string",
-                number: "string",
-                value: "string",
+                federal_id: "072",
+                date: "20.08.2024",
+                number: "1",
+                value: "2",
             }]
         }
     },
