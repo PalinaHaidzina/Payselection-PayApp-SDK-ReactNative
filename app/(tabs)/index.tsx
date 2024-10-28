@@ -1,25 +1,28 @@
-import DynamicForm from "@/components/form/DynamicForm";
-import { Colors } from "@/constants/Colors";
-import {
-  paymentTypesHandbook,
-} from "@/constants/formFielsLists/handbook";
-import React, {useEffect, useState} from "react";
+import DynamicForm from "@/form/DynamicForm";
+import { Colors } from "@/style/Colors";
+import { paymentTypesHandbook } from "@/constants/handbook";
+import React, { useEffect, useState } from "react";
 import { Animated, StyleSheet, View } from "react-native";
 import ScrollView = Animated.ScrollView;
-import {List} from "react-native-paper";
-import {defaultPaymentPayloadValues} from "@/constants/formFielsLists/formDefaultValues";
-import {PaymentMethod} from "@/types/types";
-import {fieldsFFD1_05} from "@/constants/fieldList";
+import { List } from "react-native-paper";
+import { defaultPaymentPayloadValues } from "@/constants/formDefaultValues";
+import { PAYMENT_METHOD } from "@/types/paymentMethods";
+import { fieldsFFD1_05 } from "@/constants/fieldList";
 
 export default function HomeScreen() {
   const [expanded, setExpanded] = React.useState(false);
-  const [selected, setSelected] = useState<PaymentMethod>();
-  const [defaultFormValues, setDefaultFormValues] = useState(defaultPaymentPayloadValues);
+  const [selected, setSelected] = useState<PAYMENT_METHOD>();
+  const [defaultFormValues, setDefaultFormValues] = useState(
+    defaultPaymentPayloadValues,
+  );
 
   const handlePress = () => setExpanded(!expanded);
 
   useEffect(() => {
-    const updateFormValues = (paymentMethod: PaymentMethod, paymentDetails?: { Value?: string, Type?: string, PayToken?: string }) => {
+    const updateFormValues = (
+      paymentMethod: PAYMENT_METHOD,
+      paymentDetails?: { Value?: string; Type?: string; PayToken?: string },
+    ) => {
       setDefaultFormValues({
         ...defaultFormValues,
         PaymentMethod: paymentMethod,
@@ -28,23 +31,23 @@ export default function HomeScreen() {
     };
 
     switch (selected) {
-      case PaymentMethod.Cryptogram:
-        updateFormValues(PaymentMethod.Cryptogram, { Value: "" });
+      case PAYMENT_METHOD.Cryptogram:
+        updateFormValues(PAYMENT_METHOD.Cryptogram, { Value: "" });
         break;
-      case PaymentMethod.Token:
-        updateFormValues(PaymentMethod.Token, { Type: "", PayToken: ""});
+      case PAYMENT_METHOD.Token:
+        updateFormValues(PAYMENT_METHOD.Token, { Type: "", PayToken: "" });
         break;
-      case PaymentMethod.QR:
-        updateFormValues(PaymentMethod.QR);
+      case PAYMENT_METHOD.QR:
+        updateFormValues(PAYMENT_METHOD.QR);
         break;
-      case PaymentMethod.ExternalForm:
-        updateFormValues(PaymentMethod.ExternalForm);
+      case PAYMENT_METHOD.ExternalForm:
+        updateFormValues(PAYMENT_METHOD.ExternalForm);
         break;
-      case PaymentMethod.CryptogramRSA:
-        updateFormValues(PaymentMethod.CryptogramRSA, { Value: "" });
+      case PAYMENT_METHOD.CryptogramRSA:
+        updateFormValues(PAYMENT_METHOD.CryptogramRSA, { Value: "" });
         break;
-      case PaymentMethod.SberPay:
-        updateFormValues(PaymentMethod.SberPay);
+      case PAYMENT_METHOD.SberPay:
+        updateFormValues(PAYMENT_METHOD.SberPay);
         break;
       default:
         break;
@@ -52,34 +55,36 @@ export default function HomeScreen() {
   }, [selected]);
 
   return (
-      <View style={styles.container}>
-        <ScrollView style={styles.scrollWrapper}>
-          <View>
-            <List.Accordion
-                title={selected || "Select Payment Method"}
-                style={styles.dropdownContainer}
-                expanded={expanded}
-                onPress={handlePress}
-            >
-              {paymentTypesHandbook?.map((option: any) => (
-                  <List.Item
-                      key={option.value.toString()}
-                      title={option.label}
-                      onPress={() => {
-                        setSelected(option.value);
-                        handlePress();
-                      }}
-                  />
-              ))}
-            </List.Accordion>
-          </View>
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollWrapper}>
+        <View>
+          <List.Accordion
+            title={selected || "Select Payment Method"}
+            style={styles.dropdownContainer}
+            expanded={expanded}
+            onPress={handlePress}
+          >
+            {paymentTypesHandbook?.map((option: any) => (
+              <List.Item
+                key={option.value.toString()}
+                title={option.label}
+                onPress={() => {
+                  setSelected(option.value);
+                  handlePress();
+                }}
+              />
+            ))}
+          </List.Accordion>
+        </View>
 
-          <DynamicForm defaultFormFields={defaultFormValues} fieldList={fieldsFFD1_05}/>
-        </ScrollView>
-      </View>
+        <DynamicForm
+          defaultFormFields={defaultFormValues}
+          fieldList={fieldsFFD1_05}
+        />
+      </ScrollView>
+    </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -126,12 +131,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     color: Colors.text,
     fontWeight: "700",
-    fontSize: 16
+    fontSize: 16,
   },
 
   label: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   output: {
@@ -142,5 +147,5 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: Colors.background,
     height: 60,
-  }
+  },
 });
